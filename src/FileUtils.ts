@@ -23,7 +23,7 @@ export async function readFolder(folder: string, writer: Writer<string>) {
             writer.push((await readFile(path.join(normalizedPath, fileName))).toString());
             // Try to avoid high water issue. Also avoidable with on-demand consumption
             await sleep(300);
-        }).on("end", () => writer.end());
+        });
     }, 5000);
 }
 
