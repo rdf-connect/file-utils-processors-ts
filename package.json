@@ -1,0 +1,33 @@
+{
+  "name": "file-utils-processors-ts",
+  "version": "0.0.1",
+  "description": "File util functions to be used within the Connector Architecture",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "keywords": [
+    "Files",
+    "Connector Architecture"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/julianrojas87/file-utils-processors-ts.git"
+  },
+  "author": "Julián Rojas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/julianrojas87/file-utils-processors-ts/issues"
+  },
+  "homepage": "https://github.com/julianrojas87/file-utils-processors-ts#readme",
+  "dependencies": {
+    "@treecg/connector-all": "^1.1.1",
+    "@treecg/connector-types": "^1.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
