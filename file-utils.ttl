@@ -41,5 +41,5 @@ js:FolderRead a js:JsProcess;
   ].
 
 [] a sh:NodeShape;
-  sh:targetClass js:RmlMapperString;
+  sh:targetClass js:FolderRead;
   sh:property <folderLocationProperty>, <writerProperty> .
