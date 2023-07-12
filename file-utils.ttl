@@ -6,6 +6,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
+<> owl:imports <https://raw.githubusercontent.com/ajuvercr/js-runner/master/ontology.ttl>.
 <> :install [
   a :GitInstall;
   :url <https://github.com/julianrojas87/file-utils-processors-ts.git>;
