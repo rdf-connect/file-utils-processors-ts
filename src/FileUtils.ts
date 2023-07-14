@@ -1,9 +1,9 @@
 import { Writer } from "@treecg/connector-types";
 import path from "path";
-import { Readable } from "stream";
+import { memoryUsage } from 'node:process';
 import { access, readdir, readFile } from "fs/promises";
 
-export async function readFolder(folder: string, writer: Writer<string>) {
+export async function readFolder(folder: string, writer: Writer<string>, maxMemory?: number) {
     const normalizedPath = path.normalize(folder);
 
     // Check folder exists
@@ -12,18 +12,21 @@ export async function readFolder(folder: string, writer: Writer<string>) {
     // Read folder content and iterate over each file
     const fileNames = await readdir(normalizedPath, { recursive: true });
     console.log(`[PROCESSOR][readFolder] - Reading these files: ${fileNames}`);
-    const fileStream = Readable.from(fileNames);
 
     // This is needed to avoid that the initial stream gets consumed before the next processor is initialized.
-    setTimeout(() => {
+    setTimeout(async () => {
         // TODO: Find a way to work in an on-demand mode for consuming streams.
         // Perhaps with AsyncIterators.
+        for (const fileName of fileNames) {
+            // Monitor process memory to avoid high-water memory crashes
+            // Currently limited to 3Gb
+            if (memoryUsage().heapUsed > (maxMemory ? maxMemory : 3) * 1024 * 1024 * 1024) {
+                console.log(`Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for 5s`);
+                await sleep(5000);
+            }
 
-        fileStream.on("data", async fileName => {
             writer.push((await readFile(path.join(normalizedPath, fileName))).toString());
-            // Try to avoid high water issue. Also avoidable with on-demand consumption
-            await sleep(300);
-        });
+        }
     }, 5000);
 }
 

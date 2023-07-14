@@ -31,15 +31,24 @@
   sh:path js:file_stream;
   sh:name "Output channel".
 
+<maxMemoryMapping> 
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter js:max_memory;
+      fnom:implementationParameterPosition "2"^^xsd:int .
+
+<maxMemoryProperty> sh:datatype xsd:double;
+  sh:path js:max_memory;
+  sh:name "Maximum allowed memory consumption".
+
 js:FolderRead a js:JsProcess;
   js:file <./lib/FileUtils.js>;
   js:function "readFolder";
   js:location <./>;
   js:mapping [
     a fno:Mapping;
-    fno:parameterMapping <folderLocationMapping>, <writerMapping>
+    fno:parameterMapping <folderLocationMapping>, <writerMapping>, <maxMemoryMapping>
   ].
 
 [] a sh:NodeShape;
   sh:targetClass js:FolderRead;
-  sh:property <folderLocationProperty>, <writerProperty> .
+  sh:property <folderLocationProperty>, <writerProperty>, <maxMemoryProperty>.
