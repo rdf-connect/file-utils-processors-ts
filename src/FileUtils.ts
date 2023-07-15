@@ -20,8 +20,9 @@ export async function readFolder(folder: string, writer: Writer<string>, maxMemo
         for (const fileName of fileNames) {
             // Monitor process memory to avoid high-water memory crashes
             // Currently limited to 3Gb
+            console.log(`[PROCESSOR][readFolder] - processing ${fileName}`);
             if (memoryUsage().heapUsed > (maxMemory ? maxMemory : 3) * 1024 * 1024 * 1024) {
-                console.log(`Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for 5s`);
+                console.log(`[PROCESSOR][readFolder] - Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for 5s`);
                 await sleep(5000);
             }
 
