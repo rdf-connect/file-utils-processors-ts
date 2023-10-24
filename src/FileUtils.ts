@@ -1,4 +1,4 @@
-import { Writer } from "@treecg/connector-types";
+import { Stream, Writer } from "@treecg/connector-types";
 import path from "path";
 import { memoryUsage } from "node:process";
 import { access, readdir, readFile } from "fs/promises";
@@ -55,4 +55,41 @@ export async function readFolder(
 
 function sleep(x: number): Promise<unknown> {
     return new Promise(resolve => setTimeout(resolve, x));
+}
+
+export function substitute(
+    reader: Stream<string>,
+    writer: Writer<string>,
+    source: string,
+    replace: string,
+    regexp = false
+) {
+    const reg = regexp ? new RegExp(source) : source;
+
+    return async () => {
+        reader.data(x => writer.push(x.replace(reg, replace)));
+        reader.on("end", async () => {
+            await writer.end();
+        });
+    }
+}
+
+export function envsub(reader: Stream<string>, writer: Writer<string>) {
+    const env = process.env;
+
+    return async () => {
+        reader.data(x => {
+            Object.keys(env).forEach(key => {
+                const v = env[key];
+                if (v) {
+                    x = x.replace(`\${${key}}`, v);
+                }
+            });
+
+            return writer.push(x);
+        });
+        reader.on("end", async () => {
+            await writer.end();
+        })
+    }
 }

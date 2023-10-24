@@ -98,3 +98,102 @@ js:FolderRead a js:JsProcess;
     sh:datatype xsd:integer;
     sh:maxCount 1
   ].
+
+js:Substitute a js:JsProcess;
+  dc:title "String substitute processor";
+  dc:description "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
+  js:file <../lib/FileUtils.js>;
+  js:function "substitute";
+  js:location <./>;
+  js:mapping [
+    a fno:Mapping;
+    fno:parameterMapping [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "reader";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "1"^^xsd:int
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "source";
+      fnom:implementationParameterPosition "2"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "replace";
+      fnom:implementationParameterPosition "3"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "regexp";
+      fnom:implementationParameterPosition "4"^^xsd:integer
+    ]
+].
+
+[] a sh:NodeShape;
+  sh:targetClass js:Substitute;
+  sh:property [
+    sh:path js:input;
+    sh:name "reader";
+    sh:class :ReaderChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:output;
+    sh:name "writer";
+    sh:class :WriterChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:source;
+    sh:name "source";
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:replace;
+    sh:name "replace";
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:regexp;
+    sh:name "regexp";
+    sh:datatype xsd:boolean;
+    sh:maxCount 1
+  ].
+
+js:Envsub a js:JsProcess;
+  dc:title "Environment substitute processor";
+  dc:description "Substitutes all declared environment variables to their respective values.";
+  js:file <../lib/FileUtils.js>;
+  js:function "envsub";
+  js:location <./>;
+  js:mapping [
+    a fno:Mapping;
+    fno:parameterMapping [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "reader";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "1"^^xsd:int
+    ]
+  ].
+
+[] a sh:NodeShape;
+  sh:targetClass js:Envsub;
+  sh:property [
+    sh:path js:input;
+    sh:name "reader";
+    sh:class :ReaderChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:output;
+    sh:name "writer";
+    sh:class :WriterChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ].
