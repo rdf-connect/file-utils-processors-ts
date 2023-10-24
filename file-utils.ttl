@@ -66,6 +66,10 @@ js:FolderRead a js:JsProcess;
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "maxMemory";
       fnom:implementationParameterPosition "2"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "pause";
+      fnom:implementationParameterPosition "3"^^xsd:integer
     ]
   ].
 
@@ -87,5 +91,10 @@ js:FolderRead a js:JsProcess;
     sh:path js:max_memory;
     sh:name "maxMemory";
     sh:datatype xsd:double;
+    sh:maxCount 1
+  ], [
+    sh:path js:pause;
+    sh:name "pause";
+    sh:datatype xsd:integer;
     sh:maxCount 1
   ].
