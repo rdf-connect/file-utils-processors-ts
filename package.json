@@ -1,6 +1,6 @@
 {
   "name": "file-utils-processors-ts",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "File util functions to be used within the Connector Architecture",
   "type": "module",
   "scripts": {
