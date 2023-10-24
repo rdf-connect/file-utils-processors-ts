@@ -6,39 +6,47 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
-<> owl:imports <https://raw.githubusercontent.com/ajuvercr/js-runner/master/ontology.ttl>.
-<> :install [
-  a :GitInstall;
-  :url <https://github.com/julianrojas87/file-utils-processors-ts.git>;
-  :build "npm install; npm run build";
-].
-
-<folderLocationMapping> 
+js:GlobRead a js:JsProcess;
+  js:file <./lib/FileUtils.js>;
+  js:function "globRead";
+  js:location <./>;
+  js:mapping [
+    a fno:Mapping;
+    fno:parameterMapping [
       a fnom:PositionParameterMapping ;
-      fnom:functionParameter js:folder_location;
-      fnom:implementationParameterPosition "0"^^xsd:int .
-
-<folderLocationProperty> sh:datatype xsd:string;
-  sh:path js:folder_location;
-  sh:name "Folder location path".
-
-<writerMapping> 
+      fnom:functionParameter "globPattern";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
       a fnom:PositionParameterMapping ;
-      fnom:functionParameter js:file_stream;
-      fnom:implementationParameterPosition "1"^^xsd:int .
-
-<writerProperty> sh:class :WriterChannel;
-  sh:path js:file_stream;
-  sh:name "Output channel".
-
-<maxMemoryMapping> 
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "1"^^xsd:integer
+    ], [
       a fnom:PositionParameterMapping ;
-      fnom:functionParameter js:max_memory;
-      fnom:implementationParameterPosition "2"^^xsd:int .
+      fnom:functionParameter "wait";
+      fnom:implementationParameterPosition "2"^^xsd:integer
+    ]
+  ].
 
-<maxMemoryProperty> sh:datatype xsd:double;
-  sh:path js:max_memory;
-  sh:name "Maximum allowed memory consumption".
+[] a sh:NodeShape;
+  sh:targetClass js:GlobRead;
+  sh:property [
+    sh:path js:glob;
+    sh:name "globPattern";
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:output;
+    sh:name "writer";
+    sh:class :WriterChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:wait;
+    sh:name "wait";
+    sh:datatype xsd:integer;
+    sh:maxCount 1
+  ].
 
 js:FolderRead a js:JsProcess;
   js:file <./lib/FileUtils.js>;
@@ -46,9 +54,38 @@ js:FolderRead a js:JsProcess;
   js:location <./>;
   js:mapping [
     a fno:Mapping;
-    fno:parameterMapping <folderLocationMapping>, <writerMapping>, <maxMemoryMapping>
+    fno:parameterMapping [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "folder";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "1"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "maxMemory";
+      fnom:implementationParameterPosition "2"^^xsd:integer
+    ]
   ].
 
 [] a sh:NodeShape;
   sh:targetClass js:FolderRead;
-  sh:property <folderLocationProperty>, <writerProperty>, <maxMemoryProperty>.
+  sh:property [
+    sh:path js:folder_location;
+    sh:name "folder";
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:file_stream;
+    sh:name "writer";
+    sh:class :WriterChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:max_memory;
+    sh:name "maxMemory";
+    sh:datatype xsd:double;
+    sh:maxCount 1
+  ].
