@@ -5,6 +5,7 @@
 @prefix : <https://w3id.org/conn#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/terms/> .
 
 js:GlobRead a js:JsProcess;
   js:file <./lib/FileUtils.js>;
