@@ -103,7 +103,7 @@ js:FolderRead a js:JsProcess;
 js:Substitute a js:JsProcess;
   dc:title "String substitute processor";
   dc:description "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
-  js:file <../lib/FileUtils.js>;
+  js:file <./lib/FileUtils.js>;
   js:function "substitute";
   js:location <./>;
   js:mapping [
@@ -167,7 +167,7 @@ js:Substitute a js:JsProcess;
 js:Envsub a js:JsProcess;
   dc:title "Environment substitute processor";
   dc:description "Substitutes all declared environment variables to their respective values.";
-  js:file <../lib/FileUtils.js>;
+  js:file <./lib/FileUtils.js>;
   js:function "envsub";
   js:location <./>;
   js:mapping [
