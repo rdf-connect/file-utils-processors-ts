@@ -4,18 +4,18 @@
 
 Connector Architecture Typescript processors for handling file operations. It currently exposes 4 functions:
 
-### `js:GlobRead`
+### [`js:GlobRead`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L9)
 
 This function relies on the [`glob`](https://www.npmjs.com/package/glob) library to select a set of files according to a shell expression and stream them out in a sequential fashion. A `wait` parameter can be defined to wait x milliseconds between file streaming operations.
 
-### `js:FolderRead`
+### [`js:FolderRead`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L51)
 
 This function reads all the files present in a given folder and streams out their content in a sequential fashion. A `maxMemory` parameter can be given (in GB) to defined threshold of maximum used memory by the streaming process. When the threshold is exceeded, the streaming process will pause for as many  milliseconds as defined by the `pause` parameter.
 
-### `js:Substitute`
+### [`js:Substitute`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L102)
 
 This function transform a stream by applying a given string substitution on each of the messages. The matching string can be a regex defined by the `source` property and setting the `regexp` property to `true`.
 
-### `js:Envsub`
+### [`js:Envsub`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L166)
 
 This function substitute all the defined environment variables on each of the elements of an input stream.
