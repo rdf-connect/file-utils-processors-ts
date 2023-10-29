@@ -1,6 +1,6 @@
 # file-utils-processors-ts
 
-[![Bun CI](https://github.com/julianojas87/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/julianojas87/file-utils-processors-ts/actions/workflows/build-test.yml) [![npm](https://img.shields.io/npm/v/file-utils-processors-ts.svg?style=popout)](https://npmjs.com/package/file-utils-processors-ts)
+[![Bun CI](https://github.com/julianrojas87/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/julianrojas87/file-utils-processors-ts/actions/workflows/build-test.yml) [![npm](https://img.shields.io/npm/v/file-utils-processors-ts.svg?style=popout)](https://npmjs.com/package/file-utils-processors-ts)
 
 Connector Architecture Typescript processors for handling file operations. It currently exposes 4 functions:
 
