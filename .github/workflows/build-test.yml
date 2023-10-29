@@ -19,4 +19,5 @@ jobs:
             bun-version: latest
 
         - run: bun i # Install dependencies
+        - run: bun run build # Build sources
         - run: bun test # Run tests
