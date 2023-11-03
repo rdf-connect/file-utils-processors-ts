@@ -18,4 +18,4 @@ This function transform a stream by applying a given string substitution on each
 
 ### [`js:Envsub`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L167)
 
-This function substitute all the defined environment variables on each of the elements of an input stream.
+This function substitute all the defined environment variables on each of the elements of an input stream that have been labeled with a `${VAR_NAME}` pattern.
