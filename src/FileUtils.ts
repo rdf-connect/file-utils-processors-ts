@@ -72,7 +72,7 @@ export function substitute(
 ) {
     const reg = regexp ? new RegExp(source) : source;
 
-    reader.data(x => writer.push(x.replace(reg, replace)));
+    reader.data(x => writer.push(x.replaceAll(reg, replace)));
     reader.on("end", async () => {
         await writer.end();
     });
@@ -85,7 +85,7 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
         Object.keys(env).forEach(key => {
             const v = env[key];
             if (v) {
-                x = x.replace(`\${${key}}`, v);
+                x = x.replaceAll(`\${${key}}`, v);
             }
         });
 
