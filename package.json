@@ -10,7 +10,7 @@
   },
   "files": [
     "lib/**/*",
-    "./file-utils.ttl"
+    "./processors.ttl"
   ],
   "keywords": [
     "Files",
