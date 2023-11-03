@@ -2,32 +2,35 @@ import { describe, expect, test } from "@jest/globals";
 import { extractProcessors, extractSteps, Source } from "@ajuvercr/js-runner";
 
 
-describe("File Utils tests", async () => {
+describe("File Utils tests", () => {
     const pipeline = `
-@prefix js: <https://w3id.org/conn/js#>.
-@prefix ws: <https://w3id.org/conn/ws#>.
-@prefix : <https://w3id.org/conn#>.
-@prefix owl: <http://www.w3.org/2002/07/owl#>.
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-@prefix sh: <http://www.w3.org/ns/shacl#>.
+        @prefix js: <https://w3id.org/conn/js#>.
+        @prefix ws: <https://w3id.org/conn/ws#>.
+        @prefix : <https://w3id.org/conn#>.
+        @prefix owl: <http://www.w3.org/2002/07/owl#>.
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+        @prefix sh: <http://www.w3.org/ns/shacl#>.
 
-<> owl:imports <./node_modules/@ajuvercr/js-runner/ontology.ttl>, <./file-utils.ttl>.
+        <> owl:imports <./node_modules/@ajuvercr/js-runner/ontology.ttl>, <./processors.ttl>.
 
-[ ] a :Channel;
-    :reader <jr>;
-    :writer <jw>.
-<jr> a js:JsReaderChannel.
-<jw> a js:JsWriterChannel.`;
+        [ ] a :Channel;
+            :reader <jr>;
+            :writer <jw>.
+            
+        <jr> a js:JsReaderChannel.
+        <jw> a js:JsWriterChannel.
+    `;
 
     const baseIRI = process.cwd() + "/config.ttl";
 
     test("js:GlobRead is properly defined", async () => {
         const proc = `
-        [ ] a js:GlobRead; 
-            js:glob "./*"; 
-            js:output <jw>;
-            js:wait 0.`;
+            [ ] a js:GlobRead; 
+                js:glob "./*"; 
+                js:output <jw>;
+                js:wait 0.
+        `;
 
         const source: Source = {
             value: pipeline + proc,
@@ -53,11 +56,12 @@ describe("File Utils tests", async () => {
 
     test("js:FolderRead is properly defined", async () => {
         const proc = `
-        [ ] a js:FolderRead; 
-            js:folder_location "./data"; 
-            js:file_stream <jw>;
-            js:max_memory 3.5;
-            js:pause 3000.`;
+            [ ] a js:FolderRead; 
+                js:folder_location "./data"; 
+                js:file_stream <jw>;
+                js:max_memory 3.5;
+                js:pause 3000.
+        `;
 
         const source: Source = {
             value: pipeline + proc,
@@ -84,9 +88,10 @@ describe("File Utils tests", async () => {
 
     test("js:Envsub is properly defined", async () => {
         const proc = `
-        [ ] a js:Envsub; 
-            js:input <jr>; 
-            js:output <jw>.`;
+            [ ] a js:Envsub; 
+                js:input <jr>; 
+                js:output <jw>.
+        `;
 
         const source: Source = {
             value: pipeline + proc,
@@ -111,12 +116,13 @@ describe("File Utils tests", async () => {
 
     test("js:Substitute is properly defined", async () => {
         const proc = `
-        [ ] a js:Substitute; 
-            js:input <jr>;
-            js:output <jw>;
-            js:source "life";
-            js:replace "42";
-            js:regexp false.`;
+            [ ] a js:Substitute; 
+                js:input <jr>;
+                js:output <jw>;
+                js:source "life";
+                js:replace "42";
+                js:regexp false.
+        `;
 
         const source: Source = {
             value: pipeline + proc,
