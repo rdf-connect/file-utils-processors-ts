@@ -47,7 +47,7 @@ describe("Functional tests for the substitute Connector Architecture function", 
         });
 
         // Await and execute returned function of processor
-        await (await substitute(readStream, writeStream, "{REPLACE_ME}", "Good Text"))();
+        substitute(readStream, writeStream, "{REPLACE_ME}", "Good Text");
 
         await readStream.push("This text should be {REPLACE_ME}");
         await readStream.end();
@@ -70,7 +70,7 @@ describe("Functional tests for the environment substitute Connector Architecture
         process.env["REPLACE_ME"] = "Good Text";
 
         // Await and execute returned function of processor
-        await (await envsub(readStream, writeStream))();
+        envsub(readStream, writeStream);
 
         await readStream.push("This text should be ${REPLACE_ME}");
         await readStream.end();

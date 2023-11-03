@@ -10,6 +10,9 @@ export async function globRead(globPattern: string, writer: Writer<string>, wait
         jsfiles.map((x) => readFile(x, { encoding: "utf8" })),
     );
 
+    // This is a source processor (i.e, the first processor in a pipeline),
+    // therefore we should wait until the rest of the pipeline is set
+    // to start pushing down data
     return async () => {
         for (let file of files) {
             await writer.push(file);
@@ -36,6 +39,9 @@ export async function readFolder(
     const fileNames = await readdir(normalizedPath, { recursive: true });
     console.log(`[PROCESSOR][readFolder] - Reading these files: ${fileNames}`);
 
+    // This is a source processor (i.e, the first processor in a pipeline),
+    // therefore we should wait until the rest of the pipeline is set
+    // to start pushing down data
     return async () => {
         for (const fileName of fileNames) {
             // Monitor process memory to avoid high-water memory crashes
@@ -66,30 +72,26 @@ export function substitute(
 ) {
     const reg = regexp ? new RegExp(source) : source;
 
-    return async () => {
-        reader.data(x => writer.push(x.replace(reg, replace)));
-        reader.on("end", async () => {
-            await writer.end();
-        });
-    }
+    reader.data(x => writer.push(x.replace(reg, replace)));
+    reader.on("end", async () => {
+        await writer.end();
+    });
 }
 
 export function envsub(reader: Stream<string>, writer: Writer<string>) {
     const env = process.env;
 
-    return async () => {
-        reader.data(x => {
-            Object.keys(env).forEach(key => {
-                const v = env[key];
-                if (v) {
-                    x = x.replace(`\${${key}}`, v);
-                }
-            });
-
-            return writer.push(x);
+    reader.data(x => {
+        Object.keys(env).forEach(key => {
+            const v = env[key];
+            if (v) {
+                x = x.replace(`\${${key}}`, v);
+            }
         });
-        reader.on("end", async () => {
-            await writer.end();
-        })
-    }
+
+        return writer.push(x);
+    });
+    reader.on("end", async () => {
+        await writer.end();
+    });
 }
