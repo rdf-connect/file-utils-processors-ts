@@ -148,6 +148,36 @@ describe("File Utils tests", () => {
         await checkProc(sub.file, sub.func);
     });
 
+    test("js:ReadFile is properly defined", async () => {
+        const proc = `
+            [ ] a js:ReadFile; 
+                js:input <jr>;
+                js:output <jw>;
+                js:folderPath ".".
+        `;
+
+        const source: Source = {
+            value: pipeline + proc,
+            baseIRI,
+            type: "memory",
+        };
+
+        const { processors, quads, shapes: config } = await extractProcessors(source);
+        const sub = processors.find((x) => x.ty.value.endsWith("ReadFile"))!;
+        
+        expect(sub).toBeDefined();
+        const argss = extractSteps(sub, quads, config);
+        expect(argss.length).toBe(1);
+        expect(argss[0].length).toBe(3);
+
+        const [[input, folderPath, output]] = argss;
+        testReader(input);
+        testWriter(output);
+        expect(folderPath).toBe(".");
+
+        await checkProc(sub.file, sub.func);
+    });
+
 });
 
 function testReader(arg: any) {

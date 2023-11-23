@@ -7,7 +7,10 @@ import { glob } from "glob";
 export async function globRead(globPattern: string, writer: Writer<string>, wait: number = 0) {
     const jsfiles = await glob(globPattern, {});
     const files = await Promise.all(
-        jsfiles.map((x) => readFile(x, { encoding: "utf8" })),
+        jsfiles.map((x) => {
+            console.log(`[globRead] reading file ${x} (from glob pattern ${globPattern})`);
+            return readFile(x, { encoding: "utf8" })
+        }),
     );
 
     // This is a source processor (i.e, the first processor in a pipeline),
@@ -37,7 +40,7 @@ export async function readFolder(
 
     // Read folder content and iterate over each file
     const fileNames = await readdir(normalizedPath, { recursive: true });
-    console.log(`[PROCESSOR][readFolder] - Reading these files: ${fileNames}`);
+    console.log(`[readFolder] Reading these files: ${fileNames}`);
 
     // This is a source processor (i.e, the first processor in a pipeline),
     // therefore we should wait until the rest of the pipeline is set
@@ -45,9 +48,9 @@ export async function readFolder(
     return async () => {
         for (const fileName of fileNames) {
             // Monitor process memory to avoid high-water memory crashes
-            console.log(`[PROCESSOR][readFolder] - processing ${fileName}`);
+            console.log(`[readFolder] processing ${fileName}`);
             if (memoryUsage().heapUsed > maxMemory * 1024 * 1024 * 1024) {
-                console.log(`[PROCESSOR][readFolder] - Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for ${pause / 1000}s`);
+                console.log(`[readFolder] Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for ${pause / 1000}s`);
                 await sleep(pause);
             }
 
@@ -72,7 +75,10 @@ export function substitute(
 ) {
     const reg = regexp ? new RegExp(source) : source;
 
-    reader.data(x => writer.push(x.replaceAll(reg, replace)));
+    reader.data(x => {
+        console.log(`[substitute] replacing ${source} by ${replace} on input text`);
+        writer.push(x.replaceAll(reg, replace))
+    });
     reader.on("end", async () => {
         await writer.end();
     });
@@ -82,6 +88,7 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
     const env = process.env;
 
     reader.data(x => {
+        console.log(`[envsub] replacing environment variable on input text`);
         Object.keys(env).forEach(key => {
             const v = env[key];
             if (v) {
@@ -94,4 +101,19 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
     reader.on("end", async () => {
         await writer.end();
     });
+}
+
+export function getFileFromFolder(reader: Stream<string>, folderPath: string, writer: Writer<string>) {
+    reader.data(async name => {
+        try {
+            const filePath = path.join(path.resolve(folderPath), name);
+            console.log(`[getFileFromFolder] reading file at ${filePath}`);
+            const file = await readFile(filePath, "utf8");
+            await writer.push(file);
+        } catch(err) {
+            throw err;
+        }
+    });
+
+    reader.on("end", async () => await writer.end());
 }

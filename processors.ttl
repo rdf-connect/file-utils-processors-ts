@@ -198,3 +198,48 @@ js:Envsub a js:JsProcess;
     sh:maxCount 1;
     sh:minCount 1
   ].
+
+js:ReadFile a js:JsProcess;
+  dc:title "On demand file reader processor";
+  dc:description "Reads a requested file on demand.";
+  js:file <./lib/FileUtils.js>;
+  js:function "getFileFromFolder";
+  js:location <./>;
+  js:mapping [
+    a fno:Mapping;
+    fno:parameterMapping [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "reader";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "folderPath";
+      fnom:implementationParameterPosition "1"^^xsd:int
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "2"^^xsd:int
+    ]
+  ].
+
+[] a sh:NodeShape;
+  sh:targetClass js:ReadFile;
+  sh:property [
+    sh:path js:input;
+    sh:name "reader";
+    sh:class :ReaderChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:folderPath;
+    sh:name "folderPath";
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:output;
+    sh:name "writer";
+    sh:class :WriterChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ].

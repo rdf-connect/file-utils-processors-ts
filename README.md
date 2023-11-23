@@ -2,7 +2,7 @@
 
 [![Bun CI](https://github.com/julianrojas87/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/julianrojas87/file-utils-processors-ts/actions/workflows/build-test.yml) [![npm](https://img.shields.io/npm/v/file-utils-processors-ts.svg?style=popout)](https://npmjs.com/package/file-utils-processors-ts)
 
-Connector Architecture Typescript processors for handling file operations. It currently exposes 4 functions:
+Connector Architecture Typescript processors for handling file operations. It currently exposes 5 functions:
 
 ### [`js:GlobRead`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L10)
 
@@ -19,3 +19,7 @@ This function transform a stream by applying a given string substitution on each
 ### [`js:Envsub`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L167)
 
 This function substitute all the defined environment variables on each of the elements of an input stream that have been labeled with a `${VAR_NAME}` pattern.
+
+### [`js:ReadFile`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L202)
+
+This can read on demand and push downstream the contents of a file located in a predefined folder. This processor is used mostly for testing and demonstrating pipeline implementations.
