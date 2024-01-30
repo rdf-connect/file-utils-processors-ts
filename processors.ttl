@@ -244,7 +244,7 @@ js:ReadFile a js:JsProcess;
     sh:minCount 1
   ].
 
-  js:UnzipFile a js:JsProcess;
+js:UnzipFile a js:JsProcess;
   dc:title "Unzip processor";
   dc:description "Processor to unzip a compressed file and stream out its content.";
   js:file <./lib/FileUtils.js>;
