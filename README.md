@@ -22,4 +22,8 @@ This function substitute all the defined environment variables on each of the el
 
 ### [`js:ReadFile`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L202)
 
-This can read on demand and push downstream the contents of a file located in a predefined folder. This processor is used mostly for testing and demonstrating pipeline implementations.
+This function can read on demand and push downstream the contents of a file located in a predefined folder. This processor is used mostly for testing and demonstrating pipeline implementations.
+
+### [`js:UnzipFile`](https://github.com/julianrojas87/file-utils-processors-ts/blob/main/file-utils.ttl#L247)
+
+This function can receive a zipped file in the form of a Buffer and stream out its decompressed contents.
