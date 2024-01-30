@@ -115,7 +115,7 @@ js:Substitute a js:JsProcess;
     ], [
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:int
+      fnom:implementationParameterPosition "1"^^xsd:integer
     ], [
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "source";
@@ -179,7 +179,7 @@ js:Envsub a js:JsProcess;
     ], [
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:int
+      fnom:implementationParameterPosition "1"^^xsd:integer
     ]
   ].
 
@@ -214,11 +214,11 @@ js:ReadFile a js:JsProcess;
     ], [
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "folderPath";
-      fnom:implementationParameterPosition "1"^^xsd:int
+      fnom:implementationParameterPosition "1"^^xsd:integer
     ], [
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "2"^^xsd:int
+      fnom:implementationParameterPosition "2"^^xsd:integer
     ]
   ].
 
@@ -234,6 +234,41 @@ js:ReadFile a js:JsProcess;
     sh:path js:folderPath;
     sh:name "folderPath";
     sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1
+  ], [
+    sh:path js:output;
+    sh:name "writer";
+    sh:class :WriterChannel;
+    sh:maxCount 1;
+    sh:minCount 1
+  ].
+
+  js:UnzipFile a js:JsProcess;
+  dc:title "Unzip processor";
+  dc:description "Processor to unzip a compressed file and stream out its content.";
+  js:file <./lib/FileUtils.js>;
+  js:function "unzipFile";
+  js:location <./>;
+  js:mapping [
+    a fno:Mapping;
+    fno:parameterMapping [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "reader";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "1"^^xsd:integer
+    ]
+  ].
+
+[] a sh:NodeShape;
+  sh:targetClass js:UnzipFile;
+  sh:property [
+    sh:path js:input;
+    sh:name "reader";
+    sh:class :ReaderChannel;
     sh:maxCount 1;
     sh:minCount 1
   ], [

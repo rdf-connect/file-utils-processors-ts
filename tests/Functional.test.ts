@@ -1,6 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
+import { readFile } from "fs/promises"; 
 import { SimpleStream } from "@ajuvercr/js-runner";
-import { globRead, readFolder, substitute, envsub, getFileFromFolder } from "../src/FileUtils";
+import { globRead, readFolder, substitute, envsub, getFileFromFolder, unzipFile } from "../src/FileUtils";
 
 describe("Functional tests for the globRead Connector Architecture function", () => {
     test("Given a glob pattern files are read and streamed out", async () => {
@@ -93,6 +94,23 @@ describe("Functional tests for the file reader Connector Architecture function",
         getFileFromFolder(readStream, ".", writeStream);
 
         await readStream.push("LICENSE");
+        await readStream.end();
+    });
+});
+
+describe("Functional tests for the unzip file Connector Architecture function", () => {
+    test("Given zipped file is unzipped and streamed out", async () => {
+        const readStream = new SimpleStream<Buffer>();
+        const writeStream = new SimpleStream<string>();
+
+        writeStream.data(data => {
+            expect(data.includes("<RINFData>")).toBeTruthy();
+        });
+
+        // Execute function of processor
+        unzipFile(readStream, writeStream);
+
+        await readStream.push(await readFile("tests/test.zip"));
         await readStream.end();
     });
 });

@@ -178,6 +178,34 @@ describe("File Utils tests", () => {
         await checkProc(sub.file, sub.func);
     });
 
+    test("js:UnzipFile is properly defined", async () => {
+        const proc = `
+            [ ] a js:UnzipFile; 
+                js:input <jr>;
+                js:output <jw>.
+        `;
+
+        const source: Source = {
+            value: pipeline + proc,
+            baseIRI,
+            type: "memory",
+        };
+
+        const { processors, quads, shapes: config } = await extractProcessors(source);
+        const sub = processors.find((x) => x.ty.value.endsWith("UnzipFile"))!;
+        
+        expect(sub).toBeDefined();
+        const argss = extractSteps(sub, quads, config);
+        expect(argss.length).toBe(1);
+        expect(argss[0].length).toBe(2);
+
+        const [[input, output]] = argss;
+        testReader(input);
+        testWriter(output);
+
+        await checkProc(sub.file, sub.func);
+    });
+
 });
 
 function testReader(arg: any) {

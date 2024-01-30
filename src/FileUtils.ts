@@ -3,6 +3,7 @@ import path from "path";
 import { memoryUsage } from "node:process";
 import { access, readdir, readFile } from "fs/promises";
 import { glob } from "glob";
+import AdmZip from "adm-zip";
 
 export async function globRead(globPattern: string, writer: Writer<string>, wait: number = 0) {
     const jsfiles = await glob(globPattern, {});
@@ -110,8 +111,20 @@ export function getFileFromFolder(reader: Stream<string>, folderPath: string, wr
             console.log(`[getFileFromFolder] reading file at ${filePath}`);
             const file = await readFile(filePath, "utf8");
             await writer.push(file);
-        } catch(err) {
+        } catch (err) {
             throw err;
+        }
+    });
+
+    reader.on("end", async () => await writer.end());
+}
+
+export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
+    reader.data(async data => {
+        const adm = new AdmZip(data);
+        for (const entry of adm.getEntries()) {
+            console.log(`[unzipFile] unzipping received file ${entry.entryName}`);
+            await writer.push(entry.getData().toString());
         }
     });
 
