@@ -25,6 +25,10 @@ js:GlobRead a js:JsProcess;
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "wait";
       fnom:implementationParameterPosition "2"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "closeOnEnd";
+      fnom:implementationParameterPosition "3"^^xsd:integer
     ]
   ].
 
@@ -46,6 +50,11 @@ js:GlobRead a js:JsProcess;
     sh:path js:wait;
     sh:name "wait";
     sh:datatype xsd:integer;
+    sh:maxCount 1
+  ], [
+    sh:path js:closeOnEnd;
+    sh:name "closeOnEnd";
+    sh:datatype xsd:boolean;
     sh:maxCount 1
   ].
 

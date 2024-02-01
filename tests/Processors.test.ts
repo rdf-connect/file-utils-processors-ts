@@ -29,7 +29,8 @@ describe("File Utils tests", () => {
             [ ] a js:GlobRead; 
                 js:glob "./*"; 
                 js:output <jw>;
-                js:wait 0.
+                js:wait 0;
+                js:closeOnEnd true.
         `;
 
         const source: Source = {
@@ -44,12 +45,13 @@ describe("File Utils tests", () => {
 
         const argss = extractSteps(env, quads, config);
         expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(3);
+        expect(argss[0].length).toBe(4);
 
-        const [[glob, output, wait]] = argss;
+        const [[glob, output, wait, closeOnEnd]] = argss;
         expect(glob).toBe("./*");
         testWriter(output);
         expect(wait).toBe(0);
+        expect(closeOnEnd).toBeTruthy();
 
         await checkProc(env.file, env.func);
     });

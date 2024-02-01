@@ -5,12 +5,17 @@ import { access, readdir, readFile } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
 
-export async function globRead(globPattern: string, writer: Writer<string>, wait: number = 0) {
+export async function globRead(
+    globPattern: string,
+    writer: Writer<string | Buffer>,
+    wait: number = 0,
+    closeOnEnd: boolean = true
+) {
     const jsfiles = await glob(globPattern, {});
     const files = await Promise.all(
         jsfiles.map((x) => {
             console.log(`[globRead] reading file ${x} (from glob pattern ${globPattern})`);
-            return readFile(x, { encoding: "utf8" })
+            return readFile(x)
         }),
     );
 
@@ -23,8 +28,10 @@ export async function globRead(globPattern: string, writer: Writer<string>, wait
             await new Promise((res) => setTimeout(res, wait));
         }
 
-        // Signal that all files were streamed
-        await writer.end();
+        if (closeOnEnd) {
+            // Signal that all files were streamed
+            await writer.end();
+        }
     };
 }
 
