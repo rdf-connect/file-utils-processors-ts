@@ -30,7 +30,8 @@ describe("File Utils tests", () => {
                 js:glob "./*"; 
                 js:output <jw>;
                 js:wait 0;
-                js:closeOnEnd true.
+                js:closeOnEnd true;
+                js:binary true.
         `;
 
         const source: Source = {
@@ -45,13 +46,14 @@ describe("File Utils tests", () => {
 
         const argss = extractSteps(env, quads, config);
         expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(4);
+        expect(argss[0].length).toBe(5);
 
-        const [[glob, output, wait, closeOnEnd]] = argss;
+        const [[glob, output, wait, closeOnEnd, binary]] = argss;
         expect(glob).toBe("./*");
         testWriter(output);
         expect(wait).toBe(0);
         expect(closeOnEnd).toBeTruthy();
+        expect(binary).toBeTruthy();
 
         await checkProc(env.file, env.func);
     });

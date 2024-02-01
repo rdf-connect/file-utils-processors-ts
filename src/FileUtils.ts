@@ -9,13 +9,14 @@ export async function globRead(
     globPattern: string,
     writer: Writer<string | Buffer>,
     wait: number = 0,
-    closeOnEnd: boolean = true
+    closeOnEnd: boolean = true,
+    binary: boolean = false
 ) {
     const jsfiles = await glob(globPattern, {});
     const files = await Promise.all(
         jsfiles.map((x) => {
             console.log(`[globRead] reading file ${x} (from glob pattern ${globPattern})`);
-            return readFile(x)
+            return readFile(x, binary ? {} : { encoding: "utf8" });
         }),
     );
 

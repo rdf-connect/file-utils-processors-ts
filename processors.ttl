@@ -29,6 +29,10 @@ js:GlobRead a js:JsProcess;
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "closeOnEnd";
       fnom:implementationParameterPosition "3"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "binary";
+      fnom:implementationParameterPosition "4"^^xsd:integer
     ]
   ].
 
@@ -54,6 +58,11 @@ js:GlobRead a js:JsProcess;
   ], [
     sh:path js:closeOnEnd;
     sh:name "closeOnEnd";
+    sh:datatype xsd:boolean;
+    sh:maxCount 1
+  ], [
+    sh:path js:binary;
+    sh:name "binary";
     sh:datatype xsd:boolean;
     sh:maxCount 1
   ].
