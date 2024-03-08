@@ -129,10 +129,14 @@ export function getFileFromFolder(reader: Stream<string>, folderPath: string, wr
 
 export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
     reader.data(async data => {
-        const adm = new AdmZip(data);
-        for (const entry of adm.getEntries()) {
-            console.log(`[unzipFile] unzipping received file ${entry.entryName}`);
-            await writer.push(entry.getData().toString());
+        try {
+            const adm = new AdmZip(data);
+            for (const entry of adm.getEntries()) {
+                console.log(`[unzipFile] unzipping received file ${entry.entryName}`);
+                await writer.push(entry.getData().toString());
+            }
+        } catch (ex) {
+            console.error("[unzipFile] Ignoring invalid ZIP file received");
         }
     });
 
