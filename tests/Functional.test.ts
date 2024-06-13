@@ -1,9 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
 import { readFile } from "fs/promises"; 
-import { SimpleStream } from "@ajuvercr/js-runner";
+import { SimpleStream } from "@rdfc/js-runner";
 import { globRead, readFolder, substitute, envsub, getFileFromFolder, unzipFile } from "../src/FileUtils";
 
-describe("Functional tests for the globRead Connector Architecture function", () => {
+describe("Functional tests for the globRead RDF-Connect function", () => {
     test("Given a glob pattern files are read and streamed out", async () => {
         const writeStream = new SimpleStream<string>();
 
@@ -19,7 +19,7 @@ describe("Functional tests for the globRead Connector Architecture function", ()
     });
 });
 
-describe("Functional tests for the readFolder Connector Architecture function", () => {
+describe("Functional tests for the readFolder RDF-Connect function", () => {
     test("Given a folder path files are read and streamed out", async () => {
         const writeStream = new SimpleStream<string>();
 
@@ -35,7 +35,7 @@ describe("Functional tests for the readFolder Connector Architecture function", 
     });
 });
 
-describe("Functional tests for the substitute Connector Architecture function", () => {
+describe("Functional tests for the substitute RDF-Connect function", () => {
     test("Given an input text stream content is adjusted according to a given pattern", async () => {
         const readStream = new SimpleStream<string>();
         const writeStream = new SimpleStream<string>();
@@ -55,7 +55,7 @@ describe("Functional tests for the substitute Connector Architecture function", 
     });
 });
 
-describe("Functional tests for the environment substitute Connector Architecture function", () => {
+describe("Functional tests for the environment substitute RDF-Connect function", () => {
     test("Given an input text stream, content is adjusted according to defined environment variables", async () => {
         const readStream = new SimpleStream<string>();
         const writeStream = new SimpleStream<string>();
@@ -78,7 +78,7 @@ describe("Functional tests for the environment substitute Connector Architecture
     });
 });
 
-describe("Functional tests for the file reader Connector Architecture function", () => {
+describe("Functional tests for the file reader RDF-Connect function", () => {
     test("Given file name is read and pushed downstream", async () => {
         const readStream = new SimpleStream<string>();
         const writeStream = new SimpleStream<string>();
@@ -98,7 +98,7 @@ describe("Functional tests for the file reader Connector Architecture function",
     });
 });
 
-describe("Functional tests for the unzip file Connector Architecture function", () => {
+describe("Functional tests for the unzip file RDF-Connect function", () => {
     test("Given zipped file is unzipped and streamed out", async () => {
         const readStream = new SimpleStream<Buffer>();
         const writeStream = new SimpleStream<string>();

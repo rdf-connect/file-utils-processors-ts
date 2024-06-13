@@ -31,16 +31,16 @@
   },
   "homepage": "https://github.com/rdf-connect/file-utils-processors-ts#readme",
   "dependencies": {
+    "@rdfc/js-runner": "^0.2.1",
     "@treecg/connector-types": "^1.2.1",
-    "adm-zip": "^0.5.10",
-    "glob": "^10.3.10"
+    "adm-zip": "^0.5.14",
+    "glob": "^10.4.1"
   },
   "devDependencies": {
-    "@ajuvercr/js-runner": "^0.1.12",
     "@jest/globals": "^29.7.0",
     "@types/adm-zip": "^0.5.5",
-    "@types/node": "^20.11.14",
+    "@types/node": "^20.14.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   }
 }
