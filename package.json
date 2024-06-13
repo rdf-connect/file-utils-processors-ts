@@ -1,7 +1,7 @@
 {
-  "name": "file-utils-processors-ts",
+  "name": "@rdfc/file-utils-processors-ts",
   "version": "0.5.3",
-  "description": "File util functions to be used within the Connector Architecture",
+  "description": "File util functions to be used within the RDF-Connect ecosystem",
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -15,11 +15,11 @@
   ],
   "keywords": [
     "Files",
-    "Connector Architecture"
+    "RDF-Connect"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/julianrojas87/file-utils-processors-ts.git"
+    "url": "git+https://github.com/rdf-connect/file-utils-processors-ts.git"
   },
   "author": "Julián Rojas",
   "contributors": [
@@ -27,9 +27,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/julianrojas87/file-utils-processors-ts/issues"
+    "url": "https://github.com/rdf-connect/file-utils-processors-ts/issues"
   },
-  "homepage": "https://github.com/julianrojas87/file-utils-processors-ts#readme",
+  "homepage": "https://github.com/rdf-connect/file-utils-processors-ts#readme",
   "dependencies": {
     "@treecg/connector-types": "^1.2.1",
     "adm-zip": "^0.5.10",
