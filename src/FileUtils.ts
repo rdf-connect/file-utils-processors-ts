@@ -1,4 +1,4 @@
-import { Stream, Writer } from "@treecg/connector-types";
+import { Stream, Writer } from "@rdfc/js-runner";
 import path from "path";
 import { memoryUsage } from "node:process";
 import { access, readdir, readFile } from "fs/promises";
