@@ -91,9 +91,9 @@ export function substitute(
 
     const reg = regexp ? new RegExp(source) : source;
 
-    reader.data(x => {
+    reader.data(async (x) => {
         logger.info(`Replacing '${source}' by '${replace}' on input text`);
-        writer.push(x.replaceAll(reg, replace))
+        await writer.push(x.replaceAll(reg, replace))
     });
     reader.on("end", async () => {
         await writer.end();
@@ -105,7 +105,7 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
 
     const env = process.env;
 
-    reader.data(x => {
+    reader.data(async (x) => {
         logger.info(`Replacing environment variable on input text`);
         Object.keys(env).forEach(key => {
             const v = env[key];
@@ -114,7 +114,7 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
             }
         });
 
-        return writer.push(x);
+        await writer.push(x);
     });
     reader.on("end", async () => {
         await writer.end();
