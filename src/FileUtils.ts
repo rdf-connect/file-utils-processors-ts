@@ -23,11 +23,20 @@ export async function globRead(
         }),
     );
 
+    let writerClosed = false;
+    writer.on("end",() => {
+         writerClosed = true;
+    });
     // This is a source processor (i.e, the first processor in a pipeline),
     // therefore we should wait until the rest of the pipeline is set
     // to start pushing down data
     return async () => {
         for (let file of files) {
+            if (writerClosed) {
+                logger.info("Writer closed, so stopping pushing data");
+                break;
+            }
+
             await writer.push(file);
             await new Promise((res) => setTimeout(res, wait));
         }
@@ -56,11 +65,21 @@ export async function readFolder(
     const fileNames = await readdir(normalizedPath, { recursive: true });
     logger.info(`Reading these files: ${fileNames}`);
 
+    let writerClosed = false;
+    writer.on("end",() => {
+        writerClosed = true;
+    });
+
     // This is a source processor (i.e, the first processor in a pipeline),
     // therefore we should wait until the rest of the pipeline is set
     // to start pushing down data
     return async () => {
         for (const fileName of fileNames) {
+            if (writerClosed) {
+                logger.info("Writer closed, so stopping pushing data");
+                break;
+            }
+
             // Monitor process memory to avoid high-water memory crashes
             logger.info(`[readFolder] processing '${fileName}'`);
             if (memoryUsage().heapUsed > maxMemory * 1024 * 1024 * 1024) {
@@ -91,12 +110,21 @@ export function substitute(
 
     const reg = regexp ? new RegExp(source) : source;
 
+    let writerClosed = false;
+    writer.on("end", async () => {
+        logger.info("Writer closed, so closing reader as well.");
+        writerClosed = true;
+        await reader.end();
+    });
+
     reader.data(async (x) => {
         logger.info(`Replacing '${source}' by '${replace}' on input text`);
         await writer.push(x.replaceAll(reg, replace))
     });
     reader.on("end", async () => {
-        await writer.end();
+         if (!writerClosed) {
+             await writer.end();
+         }
     });
 }
 
@@ -104,6 +132,13 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
     const logger = getLoggerFor("envsub");
 
     const env = process.env;
+
+    let writerClosed = false;
+    writer.on("end", async () => {
+        logger.info("Writer closed, so closing reader as well.");
+        writerClosed = true;
+        await reader.end();
+    });
 
     reader.data(async (x) => {
         logger.info(`Replacing environment variable on input text`);
@@ -117,12 +152,21 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
         await writer.push(x);
     });
     reader.on("end", async () => {
-        await writer.end();
+        if (!writerClosed) {
+            await writer.end();
+        }
     });
 }
 
 export function getFileFromFolder(reader: Stream<string>, folderPath: string, writer: Writer<string>) {
     const logger = getLoggerFor("getFileFromFolder");
+
+    let writerClosed = false;
+    writer.on("end", async () => {
+        logger.info("Writer closed, so closing reader as well.");
+        writerClosed = true;
+        await reader.end();
+    });
 
     reader.data(async name => {
         try {
@@ -135,11 +179,22 @@ export function getFileFromFolder(reader: Stream<string>, folderPath: string, wr
         }
     });
 
-    reader.on("end", async () => await writer.end());
+    reader.on("end", async () => {
+        if (!writerClosed) {
+            await writer.end();
+        }
+    });
 }
 
 export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
     const logger = getLoggerFor("unzipFile");
+
+    let writerClosed = false;
+    writer.on("end", async () => {
+        logger.info("Writer closed, so closing reader as well.");
+        writerClosed = true;
+        await reader.end();
+    });
 
     reader.data(async data => {
         try {
@@ -153,5 +208,9 @@ export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
         }
     });
 
-    reader.on("end", async () => await writer.end());
+    reader.on("end", async () => {
+        if (!writerClosed) {
+            await writer.end();
+        }
+    });
 }
