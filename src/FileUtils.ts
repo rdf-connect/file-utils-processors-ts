@@ -4,6 +4,7 @@ import { memoryUsage } from "node:process";
 import { access, readdir, readFile } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
+import {getLoggerFor} from "./utils/logUtil";
 
 export async function globRead(
     globPattern: string,
@@ -12,10 +13,12 @@ export async function globRead(
     closeOnEnd: boolean = true,
     binary: boolean = false
 ) {
+    const logger = getLoggerFor("globRead");
+
     const jsfiles = await glob(globPattern, {});
     const files = await Promise.all(
         jsfiles.map((x) => {
-            console.log(`[globRead] reading file ${x} (from glob pattern ${globPattern})`);
+            logger.info(`Reading file '${x}' (from glob pattern '${globPattern}')`);
             return readFile(x, binary ? {} : { encoding: "utf8" });
         }),
     );
@@ -42,6 +45,8 @@ export async function readFolder(
     maxMemory: number = 3,
     pause: number = 5000
 ) {
+    const logger = getLoggerFor("readFolder");
+
     const normalizedPath = path.normalize(folder);
 
     // Check folder exists
@@ -49,7 +54,7 @@ export async function readFolder(
 
     // Read folder content and iterate over each file
     const fileNames = await readdir(normalizedPath, { recursive: true });
-    console.log(`[readFolder] Reading these files: ${fileNames}`);
+    logger.info(`Reading these files: ${fileNames}`);
 
     // This is a source processor (i.e, the first processor in a pipeline),
     // therefore we should wait until the rest of the pipeline is set
@@ -57,9 +62,9 @@ export async function readFolder(
     return async () => {
         for (const fileName of fileNames) {
             // Monitor process memory to avoid high-water memory crashes
-            console.log(`[readFolder] processing ${fileName}`);
+            logger.info(`[readFolder] processing '${fileName}'`);
             if (memoryUsage().heapUsed > maxMemory * 1024 * 1024 * 1024) {
-                console.log(`[readFolder] Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for ${pause / 1000}s`);
+                logger.warn(`[readFolder] Phew! too much data (used ${Math.round((memoryUsage().heapUsed / 1024 / 1024) * 100) / 100} Mb)...waiting for ${pause / 1000}s`);
                 await sleep(pause);
             }
 
@@ -82,10 +87,12 @@ export function substitute(
     replace: string,
     regexp = false
 ) {
+    const logger = getLoggerFor("substitute");
+
     const reg = regexp ? new RegExp(source) : source;
 
     reader.data(x => {
-        console.log(`[substitute] replacing ${source} by ${replace} on input text`);
+        logger.info(`Replacing '${source}' by '${replace}' on input text`);
         writer.push(x.replaceAll(reg, replace))
     });
     reader.on("end", async () => {
@@ -94,10 +101,12 @@ export function substitute(
 }
 
 export function envsub(reader: Stream<string>, writer: Writer<string>) {
+    const logger = getLoggerFor("envsub");
+
     const env = process.env;
 
     reader.data(x => {
-        console.log(`[envsub] replacing environment variable on input text`);
+        logger.info(`Replacing environment variable on input text`);
         Object.keys(env).forEach(key => {
             const v = env[key];
             if (v) {
@@ -113,10 +122,12 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
 }
 
 export function getFileFromFolder(reader: Stream<string>, folderPath: string, writer: Writer<string>) {
+    const logger = getLoggerFor("getFileFromFolder");
+
     reader.data(async name => {
         try {
             const filePath = path.join(path.resolve(folderPath), name);
-            console.log(`[getFileFromFolder] reading file at ${filePath}`);
+            logger.info(`Reading file at '${filePath}'`);
             const file = await readFile(filePath, "utf8");
             await writer.push(file);
         } catch (err) {
@@ -128,15 +139,17 @@ export function getFileFromFolder(reader: Stream<string>, folderPath: string, wr
 }
 
 export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
+    const logger = getLoggerFor("unzipFile");
+
     reader.data(async data => {
         try {
             const adm = new AdmZip(data);
             for (const entry of adm.getEntries()) {
-                console.log(`[unzipFile] unzipping received file ${entry.entryName}`);
+                logger.info(`Unzipping received file '${entry.entryName}'`);
                 await writer.push(entry.getData().toString());
             }
         } catch (ex) {
-            console.error("[unzipFile] Ignoring invalid ZIP file received");
+            logger.error("Ignoring invalid ZIP file received");
         }
     });
 
