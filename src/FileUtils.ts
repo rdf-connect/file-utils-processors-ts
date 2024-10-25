@@ -16,6 +16,11 @@ export async function globRead(
     const logger = getLoggerFor("globRead");
 
     const jsfiles = await glob(globPattern, {});
+
+    if (jsfiles.length === 0) {
+         logger.warn(`No files found for glob pattern '${globPattern}'. Double check the pattern if this is unexpected.`);
+    }
+
     const files = await Promise.all(
         jsfiles.map((x) => {
             logger.info(`Reading file '${x}' (from glob pattern '${globPattern}')`);
