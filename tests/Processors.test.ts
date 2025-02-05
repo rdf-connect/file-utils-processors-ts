@@ -168,7 +168,7 @@ describe("File Utils tests", () => {
 
         const { processors, quads, shapes: config } = await extractProcessors(source);
         const sub = processors.find((x) => x.ty.value.endsWith("ReadFile"))!;
-        
+
         expect(sub).toBeDefined();
         const argss = extractSteps(sub, quads, config);
         expect(argss.length).toBe(1);
@@ -186,7 +186,8 @@ describe("File Utils tests", () => {
         const proc = `
             [ ] a js:UnzipFile; 
                 js:input <jr>;
-                js:output <jw>.
+                js:output <jw>;
+                js:outputAsBuffer false.
         `;
 
         const source: Source = {
@@ -197,15 +198,46 @@ describe("File Utils tests", () => {
 
         const { processors, quads, shapes: config } = await extractProcessors(source);
         const sub = processors.find((x) => x.ty.value.endsWith("UnzipFile"))!;
-        
+
         expect(sub).toBeDefined();
         const argss = extractSteps(sub, quads, config);
         expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(2);
+        expect(argss[0].length).toBe(3);
 
-        const [[input, output]] = argss;
+        const [[input, output, outputAsBuffer]] = argss;
         testReader(input);
         testWriter(output);
+        expect(outputAsBuffer).toBe(false);
+
+        await checkProc(sub.file, sub.func);
+    });
+
+    test("js:UngzipFile is properly defined", async () => {
+        const proc = `
+            [ ] a js:UngzipFile; 
+                js:input <jr>;
+                js:output <jw>;
+                js:outputAsBuffer false.
+        `;
+
+        const source: Source = {
+            value: pipeline + proc,
+            baseIRI,
+            type: "memory",
+        };
+
+        const { processors, quads, shapes: config } = await extractProcessors(source);
+        const sub = processors.find((x) => x.ty.value.endsWith("UngzipFile"))!;
+
+        expect(sub).toBeDefined();
+        const argss = extractSteps(sub, quads, config);
+        expect(argss.length).toBe(1);
+        expect(argss[0].length).toBe(3);
+
+        const [[input, output, outputAsBuffer]] = argss;
+        testReader(input);
+        testWriter(output);
+        expect(outputAsBuffer).toBe(false);
 
         await checkProc(sub.file, sub.func);
     });
