@@ -4,21 +4,23 @@ import { memoryUsage } from "node:process";
 import { access, readdir, readFile } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
-import {getLoggerFor} from "./utils/logUtil";
+import { getLoggerFor } from "./utils/logUtil";
+import * as zlib from "node:zlib";
+import { promisify } from "node:util";
 
 export async function globRead(
     globPattern: string,
     writer: Writer<string | Buffer>,
     wait: number = 0,
     closeOnEnd: boolean = true,
-    binary: boolean = false
+    binary: boolean = false,
 ) {
     const logger = getLoggerFor("globRead");
 
     const jsfiles = await glob(globPattern, {});
 
     if (jsfiles.length === 0) {
-         logger.warn(`No files found for glob pattern '${globPattern}'. Double check the pattern if this is unexpected.`);
+        logger.warn(`No files found for glob pattern '${globPattern}'. Double check the pattern if this is unexpected.`);
     }
 
     const files = await Promise.all(
@@ -29,14 +31,14 @@ export async function globRead(
     );
 
     let writerClosed = false;
-    writer.on("end",() => {
-         writerClosed = true;
+    writer.on("end", () => {
+        writerClosed = true;
     });
     // This is a source processor (i.e, the first processor in a pipeline),
     // therefore we should wait until the rest of the pipeline is set
     // to start pushing down data
     return async () => {
-        for (let file of files) {
+        for (const file of files) {
             if (writerClosed) {
                 logger.info("Writer closed, so stopping pushing data");
                 break;
@@ -57,7 +59,7 @@ export async function readFolder(
     folder: string,
     writer: Writer<string>,
     maxMemory: number = 3,
-    pause: number = 5000
+    pause: number = 5000,
 ) {
     const logger = getLoggerFor("readFolder");
 
@@ -71,7 +73,7 @@ export async function readFolder(
     logger.info(`Reading these files: ${fileNames}`);
 
     let writerClosed = false;
-    writer.on("end",() => {
+    writer.on("end", () => {
         writerClosed = true;
     });
 
@@ -97,7 +99,7 @@ export async function readFolder(
 
         // Signal that all files were streamed
         await writer.end();
-    }
+    };
 }
 
 function sleep(x: number): Promise<unknown> {
@@ -109,7 +111,7 @@ export function substitute(
     writer: Writer<string>,
     source: string,
     replace: string,
-    regexp = false
+    regexp = false,
 ) {
     const logger = getLoggerFor("substitute");
 
@@ -124,12 +126,12 @@ export function substitute(
 
     reader.data(async (x) => {
         logger.info(`Replacing '${source}' by '${replace}' on input text`);
-        await writer.push(x.replaceAll(reg, replace))
+        await writer.push(x.replaceAll(reg, replace));
     });
     reader.on("end", async () => {
-         if (!writerClosed) {
-             await writer.end();
-         }
+        if (!writerClosed) {
+            await writer.end();
+        }
     });
 }
 
@@ -146,7 +148,7 @@ export function envsub(reader: Stream<string>, writer: Writer<string>) {
     });
 
     reader.data(async (x) => {
-        logger.info(`Replacing environment variable on input text`);
+        logger.info("Replacing environment variable on input text");
         Object.keys(env).forEach(key => {
             const v = env[key];
             if (v) {
@@ -174,14 +176,10 @@ export function getFileFromFolder(reader: Stream<string>, folderPath: string, wr
     });
 
     reader.data(async name => {
-        try {
-            const filePath = path.join(path.resolve(folderPath), name);
-            logger.info(`Reading file at '${filePath}'`);
-            const file = await readFile(filePath, "utf8");
-            await writer.push(file);
-        } catch (err) {
-            throw err;
-        }
+        const filePath = path.join(path.resolve(folderPath), name);
+        logger.info(`Reading file at '${filePath}'`);
+        const file = await readFile(filePath, "utf8");
+        await writer.push(file);
     });
 
     reader.on("end", async () => {
@@ -191,7 +189,7 @@ export function getFileFromFolder(reader: Stream<string>, folderPath: string, wr
     });
 }
 
-export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
+export function unzipFile(reader: Stream<Buffer>, writer: Writer<string | Buffer>, outputAsBuffer = false) {
     const logger = getLoggerFor("unzipFile");
 
     let writerClosed = false;
@@ -206,14 +204,47 @@ export function unzipFile(reader: Stream<Buffer>, writer: Writer<string>) {
             const adm = new AdmZip(data);
             for (const entry of adm.getEntries()) {
                 logger.info(`Unzipping received file '${entry.entryName}'`);
-                await writer.push(entry.getData().toString());
+                await writer.push(outputAsBuffer ? entry.getData() : entry.getData().toString());
             }
         } catch (ex) {
             logger.error("Ignoring invalid ZIP file received");
+            logger.debug(ex);
         }
     });
 
     reader.on("end", async () => {
+        if (!writerClosed) {
+            await writer.end();
+        }
+    });
+}
+
+export function gunzipFile(reader: Stream<Buffer>, writer: Writer<string | Buffer>, outputAsBuffer = false) {
+    const logger = getLoggerFor("gunzipFile");
+
+    let writerClosed = false;
+    writer.on("end", async () => {
+        logger.info("Writer closed, so closing reader as well.");
+        writerClosed = true;
+        await reader.end();
+    });
+
+    const gunzip = promisify(zlib.gunzip);
+
+    reader.data(async data => {
+        try {
+            const buffer = await gunzip(data);
+
+            logger.info("Unzipping received file");
+            await writer.push(outputAsBuffer ? buffer : buffer.toString());
+        } catch (ex) {
+            logger.error("Ignoring invalid GZIP file received");
+            console.log(ex);
+        }
+    });
+
+    reader.on("end", async () => {
+        console.log("reader ended");
         if (!writerClosed) {
             await writer.end();
         }

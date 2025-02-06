@@ -278,6 +278,10 @@ js:UnzipFile a js:JsProcess;
       a fnom:PositionParameterMapping ;
       fnom:functionParameter "writer";
       fnom:implementationParameterPosition "1"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "outputAsBuffer";
+      fnom:implementationParameterPosition "2"^^xsd:integer
     ]
   ].
 
@@ -295,4 +299,55 @@ js:UnzipFile a js:JsProcess;
     sh:class :WriterChannel;
     sh:maxCount 1;
     sh:minCount 1
+  ], [
+    sh:path js:outputAsBuffer;
+    sh:name "outputAsBuffer";
+    sh:datatype xsd:boolean;
+    sh:maxCount 1;
+    sh:minCount 0
   ].
+
+js:GunzipFile a js:JsProcess;
+  dc:title "Gunzip processor";
+  dc:description "Processor to gunzip a compressed file and stream out its content.";
+  js:file <./lib/FileUtils.js>;
+  js:function "gunzipFile";
+  js:location <./>;
+  js:mapping [
+    a fno:Mapping;
+    fno:parameterMapping [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "reader";
+      fnom:implementationParameterPosition "0"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "writer";
+      fnom:implementationParameterPosition "1"^^xsd:integer
+    ], [
+      a fnom:PositionParameterMapping ;
+      fnom:functionParameter "outputAsBuffer";
+      fnom:implementationParameterPosition "2"^^xsd:integer
+    ]
+  ].
+
+[] a sh:NodeShape;
+   sh:targetClass js:GunzipFile;
+   sh:property [
+     sh:path js:input;
+     sh:name "reader";
+     sh:class :ReaderChannel;
+     sh:maxCount 1;
+     sh:minCount 1
+   ], [
+     sh:path js:output;
+     sh:name "writer";
+     sh:class :WriterChannel;
+     sh:maxCount 1;
+     sh:minCount 1
+   ], [
+     sh:path js:outputAsBuffer;
+     sh:name "outputAsBuffer";
+     sh:datatype xsd:boolean;
+     sh:maxCount 1;
+     sh:minCount 0
+   ].

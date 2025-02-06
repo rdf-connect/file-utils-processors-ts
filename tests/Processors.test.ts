@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, test } from "vitest";
 import { extractProcessors, extractSteps, Source } from "@rdfc/js-runner";
 
 
@@ -85,7 +85,7 @@ describe("File Utils tests", () => {
         expect(folder_location).toBe("./data");
         testWriter(file_Stream);
         expect(max_memory).toBe(3.5);
-        expect(pause).toBe(3000)
+        expect(pause).toBe(3000);
 
         await checkProc(env.file, env.func);
     });
@@ -168,7 +168,7 @@ describe("File Utils tests", () => {
 
         const { processors, quads, shapes: config } = await extractProcessors(source);
         const sub = processors.find((x) => x.ty.value.endsWith("ReadFile"))!;
-        
+
         expect(sub).toBeDefined();
         const argss = extractSteps(sub, quads, config);
         expect(argss.length).toBe(1);
@@ -186,7 +186,8 @@ describe("File Utils tests", () => {
         const proc = `
             [ ] a js:UnzipFile; 
                 js:input <jr>;
-                js:output <jw>.
+                js:output <jw>;
+                js:outputAsBuffer false.
         `;
 
         const source: Source = {
@@ -197,21 +198,53 @@ describe("File Utils tests", () => {
 
         const { processors, quads, shapes: config } = await extractProcessors(source);
         const sub = processors.find((x) => x.ty.value.endsWith("UnzipFile"))!;
-        
+
         expect(sub).toBeDefined();
         const argss = extractSteps(sub, quads, config);
         expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(2);
+        expect(argss[0].length).toBe(3);
 
-        const [[input, output]] = argss;
+        const [[input, output, outputAsBuffer]] = argss;
         testReader(input);
         testWriter(output);
+        expect(outputAsBuffer).toBe(false);
+
+        await checkProc(sub.file, sub.func);
+    });
+
+    test("js:GunzipFile is properly defined", async () => {
+        const proc = `
+            [ ] a js:GunzipFile; 
+                js:input <jr>;
+                js:output <jw>;
+                js:outputAsBuffer false.
+        `;
+
+        const source: Source = {
+            value: pipeline + proc,
+            baseIRI,
+            type: "memory",
+        };
+
+        const { processors, quads, shapes: config } = await extractProcessors(source);
+        const sub = processors.find((x) => x.ty.value.endsWith("GunzipFile"))!;
+
+        expect(sub).toBeDefined();
+        const argss = extractSteps(sub, quads, config);
+        expect(argss.length).toBe(1);
+        expect(argss[0].length).toBe(3);
+
+        const [[input, output, outputAsBuffer]] = argss;
+        testReader(input);
+        testWriter(output);
+        expect(outputAsBuffer).toBe(false);
 
         await checkProc(sub.file, sub.func);
     });
 
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function testReader(arg: any) {
     expect(arg).toBeInstanceOf(Object);
     expect(arg.ty).toBeDefined();
@@ -219,6 +252,7 @@ function testReader(arg: any) {
     expect(arg.config.channel.id).toBeDefined();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function testWriter(arg: any) {
     expect(arg).toBeInstanceOf(Object);
     expect(arg.ty).toBeDefined();
@@ -227,6 +261,6 @@ function testWriter(arg: any) {
 }
 
 async function checkProc(location: string, func: string) {
-    const mod = await import("file://" + location);
+    const mod = await import(location);
     expect(mod[func]).toBeDefined();
 }
