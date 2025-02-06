@@ -1,7 +1,7 @@
-import { describe, expect, test, afterEach } from "@jest/globals";
+import { describe, expect, test } from "@jest/globals";
 import { readFile } from "fs/promises";
 import { SimpleStream } from "@rdfc/js-runner";
-import {globRead, readFolder, substitute, envsub, getFileFromFolder, unzipFile, ungzipFile} from "../src/FileUtils";
+import {globRead, readFolder, substitute, envsub, getFileFromFolder, unzipFile, gunzipFile} from "../src/FileUtils";
 
 describe("Functional tests for the globRead RDF-Connect function", () => {
     test("Given a glob pattern files are read and streamed out", async () => {
@@ -127,8 +127,8 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
     });
 });
 
-describe("Functional tests for the ungzip file RDF-Connect function", () => {
-    test("Given gzipped file is ungzipped and streamed out", async () => {
+describe("Functional tests for the gunzip file RDF-Connect function", () => {
+    test("Given gzipped file is gunzipped and streamed out", async () => {
         expect.assertions(1);
 
         const readStream = new SimpleStream<Buffer>();
@@ -139,7 +139,7 @@ describe("Functional tests for the ungzip file RDF-Connect function", () => {
         });
 
         // Execute function of processor
-        ungzipFile(readStream, writeStream);
+        gunzipFile(readStream, writeStream);
 
         await readStream.push(await readFile("tests/test.gz"));
         await readStream.end();

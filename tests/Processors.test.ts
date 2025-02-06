@@ -212,9 +212,9 @@ describe("File Utils tests", () => {
         await checkProc(sub.file, sub.func);
     });
 
-    test("js:UngzipFile is properly defined", async () => {
+    test("js:GunzipFile is properly defined", async () => {
         const proc = `
-            [ ] a js:UngzipFile; 
+            [ ] a js:GunzipFile; 
                 js:input <jr>;
                 js:output <jw>;
                 js:outputAsBuffer false.
@@ -227,7 +227,7 @@ describe("File Utils tests", () => {
         };
 
         const { processors, quads, shapes: config } = await extractProcessors(source);
-        const sub = processors.find((x) => x.ty.value.endsWith("UngzipFile"))!;
+        const sub = processors.find((x) => x.ty.value.endsWith("GunzipFile"))!;
 
         expect(sub).toBeDefined();
         const argss = extractSteps(sub, quads, config);

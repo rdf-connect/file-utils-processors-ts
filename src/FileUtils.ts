@@ -222,8 +222,8 @@ export function unzipFile(reader: Stream<Buffer>, writer: Writer<string | Buffer
    });
 }
 
-export function ungzipFile(reader: Stream<Buffer>, writer: Writer<string | Buffer>, outputAsBuffer = false) {
-   const logger = getLoggerFor("ungzipFile");
+export function gunzipFile(reader: Stream<Buffer>, writer: Writer<string | Buffer>, outputAsBuffer = false) {
+   const logger = getLoggerFor("gunzipFile");
 
    let writerClosed = false;
    writer.on("end", async () => {

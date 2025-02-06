@@ -307,11 +307,11 @@ js:UnzipFile a js:JsProcess;
     sh:minCount 0
   ].
 
-js:UngzipFile a js:JsProcess;
-  dc:title "Ungzip processor";
-  dc:description "Processor to ungzip a compressed file and stream out its content.";
+js:GunzipFile a js:JsProcess;
+  dc:title "Gunzip processor";
+  dc:description "Processor to gunzip a compressed file and stream out its content.";
   js:file <./lib/FileUtils.js>;
-  js:function "ungzipFile";
+  js:function "gunzipFile";
   js:location <./>;
   js:mapping [
     a fno:Mapping;
@@ -331,7 +331,7 @@ js:UngzipFile a js:JsProcess;
   ].
 
 [] a sh:NodeShape;
-   sh:targetClass js:UngzipFile;
+   sh:targetClass js:GunzipFile;
    sh:property [
      sh:path js:input;
      sh:name "reader";
