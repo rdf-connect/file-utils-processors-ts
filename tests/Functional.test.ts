@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, test } from "vitest";
 import { readFile } from "fs/promises";
 import { SimpleStream } from "@rdfc/js-runner";
 import {globRead, readFolder, substitute, envsub, getFileFromFolder, unzipFile, gunzipFile} from "../src/FileUtils";
