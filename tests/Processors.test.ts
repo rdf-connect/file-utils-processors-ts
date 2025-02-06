@@ -85,7 +85,7 @@ describe("File Utils tests", () => {
         expect(folder_location).toBe("./data");
         testWriter(file_Stream);
         expect(max_memory).toBe(3.5);
-        expect(pause).toBe(3000)
+        expect(pause).toBe(3000);
 
         await checkProc(env.file, env.func);
     });
@@ -244,6 +244,7 @@ describe("File Utils tests", () => {
 
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function testReader(arg: any) {
     expect(arg).toBeInstanceOf(Object);
     expect(arg.ty).toBeDefined();
@@ -251,6 +252,7 @@ function testReader(arg: any) {
     expect(arg.config.channel.id).toBeDefined();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function testWriter(arg: any) {
     expect(arg).toBeInstanceOf(Object);
     expect(arg.ty).toBeDefined();
