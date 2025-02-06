@@ -27,3 +27,7 @@ This function can read on demand and push downstream the contents of a file loca
 ### [`js:UnzipFile`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L265)
 
 This function can receive a zipped file in the form of a Buffer and stream out its decompressed contents.
+
+### [`js:GunzipFile`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L310)
+
+This function can receive a gzipped file in the form of a Buffer and stream out its decompressed contents.
