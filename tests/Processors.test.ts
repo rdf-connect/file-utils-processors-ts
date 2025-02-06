@@ -259,6 +259,6 @@ function testWriter(arg: any) {
 }
 
 async function checkProc(location: string, func: string) {
-    const mod = await import("file://" + location);
+    const mod = await import(location);
     expect(mod[func]).toBeDefined();
 }
