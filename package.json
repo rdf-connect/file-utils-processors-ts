@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/rdf-connect/file-utils-processors-ts#readme",
   "dependencies": {
-    "@rdfc/js-runner": "^1.0.0",
+    "@rdfc/js-runner": "^2.0.0-alpha.2",
     "adm-zip": "^0.5.16",
     "glob": "^11.0.1",
     "gunzip-maybe": "^1.4.2",
