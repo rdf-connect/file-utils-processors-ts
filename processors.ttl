@@ -59,7 +59,7 @@ rdfc:FolderRead a rdfc:Processor;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:file_stream;
+    sh:path js:file_stream;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;

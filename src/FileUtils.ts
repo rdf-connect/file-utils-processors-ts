@@ -26,6 +26,7 @@ export class GlobRead extends Processor<GlobReadInp> {
     this.binary = this.binary ?? false;
     const jsfiles = await glob(this.globPattern, {});
 
+    console.log("JsFiles " + JSON.stringify(jsfiles));
     this.files = await Promise.all(
       jsfiles.map((x) => {
         this.logger.info(`Reading file '${x}' (from glob pattern '${this.globPattern}')`);
@@ -146,7 +147,7 @@ export class Substitute extends Processor<SubstituteArgs> {
 type EnvSubArgs = {
   reader: Reader, writer: Writer
 }
-export class EnvSub extends Processor<EnvSubArgs> {
+export class Envsub extends Processor<EnvSubArgs> {
   async init(this: EnvSubArgs & this): Promise<void> {
     // nothing
   }
