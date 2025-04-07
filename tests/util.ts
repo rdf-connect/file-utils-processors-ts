@@ -1,5 +1,6 @@
-import { reexports } from "@rdfc/js-runner";
+import { Processor, reexports } from "@rdfc/js-runner";
 
+export type GetMyClassT<C extends Processor<unknown>> = C extends Processor<infer T>  ? T & C : unknown;
 export class TestClient extends reexports.RunnerClient {
   next: (stream: reexports.ClientReadableStream<reexports.DataChunk>) => unknown
 
