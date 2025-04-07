@@ -1,31 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { readFile } from "fs/promises";
-import { ReaderInstance, WriterInstance } from "@rdfc/js-runner";
-import { GetMyClassT, TestClient } from "./util";
+import { GetMyClassT } from "./util";
 import { Envsub, GetFileFromFolder, GlobRead, GunzipFile, ReadFolder, Substitute, UnzipFile } from "../src/FileUtils";
-import winston, { createLogger } from "winston";
-import { OrchestratorMessage } from "@rdfc/js-runner/lib/reexports";
+import { createWriter, createReader, uri, logger } from "@rdfc/js-runner/lib/testUtils";
 
-const client = new TestClient()
-const uri = 'someUri'
-const logger = createLogger({
-  transports: new winston.transports.Console({ level: process.env['DEBUG'] && 'info' }),
-})
-const encoder = new TextEncoder();
-const dencoder = new TextDecoder();
-
-function createWriter(): [WriterInstance, OrchestratorMessage[]] {
-  const msgs: OrchestratorMessage[] = []
-  const writeStream = new WriterInstance(uri, client, async (msg) => {
-    msgs.push(msg);
-  }, logger)
-  return [writeStream, msgs];
-}
-
-function createReader(): ReaderInstance {
-  const reader = new ReaderInstance(uri, client, logger);
-  return reader;
-}
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
 
 describe("Functional tests for the globRead RDF-Connect function", () => {
   test("Given a glob pattern files are read and streamed out", async () => {
@@ -105,7 +85,7 @@ describe("Functional tests for the substitute RDF-Connect function", () => {
 
     expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
     const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(dencoder.decode(msg.data)).toBe("This text should be Good Text")
+    expect(decoder.decode(msg.data)).toBe("This text should be Good Text")
   });
 });
 
@@ -138,7 +118,7 @@ describe("Functional tests for the environment substitute RDF-Connect function",
 
     expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
     const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(dencoder.decode(msg.data)).toBe("This text should be Good Text")
+    expect(decoder.decode(msg.data)).toBe("This text should be Good Text")
   });
 });
 
@@ -170,7 +150,7 @@ describe("Functional tests for the file reader RDF-Connect function", () => {
 
     expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
     const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(dencoder.decode(msg.data).startsWith("MIT License")).toBeTruthy()
+    expect(decoder.decode(msg.data).startsWith("MIT License")).toBeTruthy()
   });
 });
 
@@ -201,7 +181,7 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
 
     expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
     const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(dencoder.decode(msg.data).includes("<RINFData>")).toBeTruthy()
+    expect(decoder.decode(msg.data).includes("<RINFData>")).toBeTruthy()
   });
 });
 
@@ -232,6 +212,6 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
 
     expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
     const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(dencoder.decode(msg.data).includes("<RINFData>")).toBeTruthy()
+    expect(decoder.decode(msg.data).includes("<RINFData>")).toBeTruthy()
   });
 });

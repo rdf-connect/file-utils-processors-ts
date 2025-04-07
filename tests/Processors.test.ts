@@ -6,16 +6,8 @@ import { GetMyClassT, Processor, Runner, WriterInstance, ReaderInstance } from "
 import { TestClient } from "./util";
 import { createLogger, transports } from "winston";
 import { OrchestratorMessage } from "@rdfc/js-runner/lib/reexports";
+import { getProcessorShape } from "@rdfc/js-runner/lib/testUtils";
 import { GlobRead, ReadFolder, UnzipFile, Envsub, Substitute, GetFileFromFolder } from "../src/FileUtils";
-
-async function getProcessorShape() {
-  const baseIRI = process.cwd() + "/node_modules/@rdfc/js-runner/index.ttl";
-  const configFile = await readFile(baseIRI, { encoding: "utf8" });
-  const configQuads = new Parser().parse(configFile);
-  const shapes = extractShapes(configQuads);
-
-  return shapes;
-}
 
 describe("File Utils tests", async () => {
   const logger = createLogger({ transports: [new transports.Console()] });
@@ -183,23 +175,3 @@ describe("File Utils tests", async () => {
 
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function testReader(arg: any) {
-  expect(arg).toBeInstanceOf(Object);
-  expect(arg.ty).toBeDefined();
-  expect(arg.config.channel).toBeDefined();
-  expect(arg.config.channel.id).toBeDefined();
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function testWriter(arg: any) {
-  expect(arg).toBeInstanceOf(Object);
-  expect(arg.ty).toBeDefined();
-  expect(arg.config.channel).toBeDefined();
-  expect(arg.config.channel.id).toBeDefined();
-}
-
-async function checkProc(location: string, func: string) {
-  const mod = await import(location);
-  expect(mod[func]).toBeDefined();
-}
