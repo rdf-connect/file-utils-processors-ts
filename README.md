@@ -10,7 +10,7 @@ This function relies on the [`glob`](https://www.npmjs.com/package/glob) library
 
 ### [`js:FolderRead`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L70)
 
-This function reads all the files present in a given folder and streams out their content in a sequential fashion. A `maxMemory` parameter can be given (in GB) to defined threshold of maximum used memory by the streaming process. When the threshold is exceeded, the streaming process will pause for as many  milliseconds as defined by the `pause` parameter.
+This function reads all the files present in a given folder and streams out their content in a sequential fashion. A `maxMemory` parameter can be given (in GB) to defined threshold of maximum used memory by the streaming process. When the threshold is exceeded, the streaming process will pause for as many milliseconds as defined by the `pause` parameter.
 
 ### [`js:Substitute`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L121)
 

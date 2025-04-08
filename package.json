@@ -1,62 +1,64 @@
 {
-  "name": "@rdfc/file-utils-processors-ts",
-  "version": "0.6.0",
-  "description": "File util functions to be used within the RDF-Connect ecosystem",
-  "type": "module",
-  "scripts": {
-    "build": "tsc && tsc-alias",
-    "prepublishOnly": "tsc",
-    "test": "vitest run --coverage --coverage.include src",
-    "watch": "tsc -w"
-  },
-  "files": [
-    "lib/**/*",
-    "./processors.ttl"
-  ],
-  "keywords": [
-    "Files",
-    "RDF-Connect"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rdf-connect/file-utils-processors-ts.git"
-  },
-  "author": "Julián Rojas",
-  "contributors": [
-    "Arthur Vercruysse",
-    "Ieben Smessaert"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rdf-connect/file-utils-processors-ts/issues"
-  },
-  "homepage": "https://github.com/rdf-connect/file-utils-processors-ts#readme",
-  "dependencies": {
+    "name": "@rdfc/file-utils-processors-ts",
+    "version": "0.6.0",
+    "description": "File util functions to be used within the RDF-Connect ecosystem",
+    "type": "module",
+    "scripts": {
+        "build": "tsc && tsc-alias",
+        "prepublishOnly": "tsc",
+        "test": "vitest run --coverage --coverage.include src",
+        "prepare": "husky",
+        "watch": "tsc -w"
+    },
+    "files": [
+        "lib/**/*",
+        "./processors.ttl"
+    ],
+    "keywords": [
+        "Files",
+        "RDF-Connect"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rdf-connect/file-utils-processors-ts.git"
+    },
+    "author": "Julián Rojas",
+    "contributors": [
+        "Arthur Vercruysse",
+        "Ieben Smessaert"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/rdf-connect/file-utils-processors-ts/issues"
+    },
+    "homepage": "https://github.com/rdf-connect/file-utils-processors-ts#readme",
+    "dependencies": {
         "@rdfc/js-runner": "^2.0.0-alpha.6",
-    "adm-zip": "^0.5.16",
-    "glob": "^11.0.1",
-    "gunzip-maybe": "^1.4.2",
-    "winston": "^3.17.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.23.0",
-    "@types/adm-zip": "^0.5.7",
-    "@types/n3": "^1.24.2",
-    "@types/node": "^22.13.14",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "@vitest/coverage-v8": "^3.0.9",
-    "eslint": "^9.19.0",
-    "eslint-config-prettier": "^10.1.1",
-    "lint-staged": "^15.5.0",
-    "n3": "^1.24.2",
-    "prettier": "^3.5.3",
-    "rdf-lens": "^1.3.5",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.13",
-    "typescript": "^5.8.2",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.9"
-  }
+        "adm-zip": "^0.5.16",
+        "glob": "^11.0.1",
+        "gunzip-maybe": "^1.4.2",
+        "winston": "^3.17.0"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3.3.1",
+        "@eslint/js": "^9.23.0",
+        "@types/adm-zip": "^0.5.7",
+        "@types/n3": "^1.24.2",
+        "@types/node": "^22.13.14",
+        "@typescript-eslint/eslint-plugin": "^8.28.0",
+        "@typescript-eslint/parser": "^8.28.0",
+        "@vitest/coverage-v8": "^3.0.9",
+        "husky": "^9.1.7",
+        "eslint": "^9.19.0",
+        "eslint-config-prettier": "^10.1.1",
+        "lint-staged": "^15.5.0",
+        "n3": "^1.24.2",
+        "prettier": "^3.5.3",
+        "rdf-lens": "^1.3.5",
+        "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.13",
+        "typescript": "^5.8.2",
+        "vite-tsconfig-paths": "^5.1.4",
+        "vitest": "^3.0.9"
+    }
 }
