@@ -1,17 +1,29 @@
 import { describe, expect, test } from "vitest";
 import { readFile } from "fs/promises";
-import { GetMyClassT } from "./util";
 import { Envsub, GetFileFromFolder, GlobRead, GunzipFile, ReadFolder, Substitute, UnzipFile } from "../src/FileUtils";
 import { createWriter, createReader, uri, logger } from "@rdfc/js-runner/lib/testUtils";
+import { FullProc, ReaderInstance } from "@rdfc/js-runner";
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
+
+async function strings(reader: ReaderInstance) {
+  const out: string[] = []
+
+  for await (const st of reader.strings()) {
+    out.push(st);
+  }
+
+  return out
+}
 
 describe("Functional tests for the globRead RDF-Connect function", () => {
   test("Given a glob pattern files are read and streamed out", async () => {
     expect.assertions(1);
 
-    const [writeStream, msgs] = createWriter();
+    const [writeStream, reader] = createWriter();
+
+    const sts = strings(reader);
 
     const proc = new GlobRead({
       writer: writeStream,
@@ -19,7 +31,7 @@ describe("Functional tests for the globRead RDF-Connect function", () => {
       closeOnEnd: true,
       wait: 0,
       globPattern: "./tests/*.ts"
-    }, logger) as GetMyClassT<GlobRead>;
+    }, logger) as FullProc<GlobRead>;
 
     await proc.init();
 
@@ -28,7 +40,8 @@ describe("Functional tests for the globRead RDF-Connect function", () => {
       proc.transform()]
     )
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
   });
 });
 
@@ -36,14 +49,16 @@ describe("Functional tests for the readFolder RDF-Connect function", () => {
   test("Given a folder path files are read and streamed out", async () => {
     expect.assertions(1);
 
-    const [writeStream, msgs] = createWriter();
+    const [writeStream, reader] = createWriter();
+
+    const sts = strings(reader);
 
     const proc = new ReadFolder({
       writer: writeStream,
       folder: "./tests",
       maxMemory: 1000,
       pause: 0,
-    }, logger) as GetMyClassT<ReadFolder>;
+    }, logger) as FullProc<ReadFolder>;
 
     await proc.init();
 
@@ -52,7 +67,8 @@ describe("Functional tests for the readFolder RDF-Connect function", () => {
       proc.transform()]
     )
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
   });
 });
 
@@ -61,7 +77,9 @@ describe("Functional tests for the substitute RDF-Connect function", () => {
     expect.assertions(2);
 
     const reader = createReader();
-    const [writer, msgs] = createWriter();
+    const [writer, outputReader] = createWriter();
+
+    const sts = strings(outputReader);
 
     const proc = new Substitute(
       {
@@ -71,7 +89,7 @@ describe("Functional tests for the substitute RDF-Connect function", () => {
         replace: "Good Text",
         source: "{REPLACE_ME}"
       }, logger,
-    ) as GetMyClassT<Substitute>;
+    ) as FullProc<Substitute>;
 
     await proc.init();
     const t = proc.transform()
@@ -83,9 +101,9 @@ describe("Functional tests for the substitute RDF-Connect function", () => {
       proc.produce()
     ]);
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
-    const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(decoder.decode(msg.data)).toBe("This text should be Good Text")
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
+    expect(msgs[0]).toBe("This text should be Good Text")
   });
 });
 
@@ -94,7 +112,9 @@ describe("Functional tests for the environment substitute RDF-Connect function",
     expect.assertions(2);
 
     const reader = createReader();
-    const [writer, msgs] = createWriter();
+    const [writer, outputReader] = createWriter();
+
+    const sts = strings(outputReader);
 
     // Set environment variable
     process.env["REPLACE_ME"] = "Good Text";
@@ -104,7 +124,7 @@ describe("Functional tests for the environment substitute RDF-Connect function",
         reader,
         writer,
       }, logger,
-    ) as GetMyClassT<Envsub>;
+    ) as FullProc<Envsub>;
 
     await proc.init();
     const t = proc.transform()
@@ -116,9 +136,9 @@ describe("Functional tests for the environment substitute RDF-Connect function",
       proc.produce()
     ]);
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
-    const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(decoder.decode(msg.data)).toBe("This text should be Good Text")
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
+    expect(msgs[0]).toBe("This text should be Good Text")
   });
 });
 
@@ -127,7 +147,9 @@ describe("Functional tests for the file reader RDF-Connect function", () => {
     expect.assertions(2);
 
     const reader = createReader();
-    const [writer, msgs] = createWriter();
+    const [writer, outputReader] = createWriter();
+
+    const sts = strings(outputReader);
 
     const proc = new GetFileFromFolder(
       {
@@ -135,7 +157,7 @@ describe("Functional tests for the file reader RDF-Connect function", () => {
         writer,
         folderPath: "."
       }, logger,
-    ) as GetMyClassT<GetFileFromFolder>;
+    ) as FullProc<GetFileFromFolder>;
 
     await proc.init();
     const t = proc.transform()
@@ -148,9 +170,9 @@ describe("Functional tests for the file reader RDF-Connect function", () => {
       proc.produce()
     ]);
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
-    const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(decoder.decode(msg.data).startsWith("MIT License")).toBeTruthy()
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
+    expect(msgs[0].startsWith("MIT License")).toBeTruthy()
   });
 });
 
@@ -159,14 +181,16 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
     expect.assertions(2);
 
     const reader = createReader();
-    const [writer, msgs] = createWriter();
+    const [writer, outputReader] = createWriter();
+
+    const sts = strings(outputReader);
 
     const proc = new UnzipFile(
       {
         reader,
         writer,
       }, logger,
-    ) as GetMyClassT<UnzipFile>;
+    ) as FullProc<UnzipFile>;
 
     await proc.init();
     const t = proc.transform()
@@ -179,9 +203,9 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
       proc.produce()
     ]);
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
-    const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(decoder.decode(msg.data).includes("<RINFData>")).toBeTruthy()
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
+    expect(msgs[0].includes("<RINFData>")).toBeTruthy()
   });
 });
 
@@ -190,14 +214,16 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
     expect.assertions(2);
 
     const reader = createReader();
-    const [writer, msgs] = createWriter();
+    const [writer, outputReader] = createWriter();
+
+    const sts = strings(outputReader);
 
     const proc = new GunzipFile(
       {
         reader,
         writer,
       }, logger,
-    ) as GetMyClassT<GunzipFile>;
+    ) as FullProc<GunzipFile>;
 
     await proc.init();
     const t = proc.transform()
@@ -210,8 +236,8 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
       proc.produce()
     ]);
 
-    expect(msgs.filter(x => !!x.msg).length).toBeGreaterThan(0);
-    const msg = msgs.map(x => x.msg).find(x => x)!;
-    expect(decoder.decode(msg.data).includes("<RINFData>")).toBeTruthy()
+    const msgs = await sts;
+    expect(msgs.length).toBeGreaterThan(0);
+    expect(msgs[0].includes("<RINFData>")).toBeTruthy()
   });
 });

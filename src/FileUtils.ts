@@ -4,7 +4,6 @@ import { memoryUsage } from "node:process";
 import { access, readdir, readFile } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
-import { getLoggerFor } from "./utils/logUtil";
 import * as zlib from "node:zlib";
 import { promisify } from "node:util";
 import { stat } from "node:fs/promises";
