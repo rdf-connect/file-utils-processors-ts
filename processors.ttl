@@ -1,5 +1,5 @@
+@prefix rdfc: <https://w3id.org/rdf-connect#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-@prefix js: <https://w3id.org/conn/js#>.
 @prefix fno: <https://w3id.org/function/ontology#>.
 @prefix fnom: <https://w3id.org/function/vocabulary/mapping#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
@@ -7,9 +7,11 @@
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix dc: <http://purl.org/dc/terms/>.
-@prefix rdfc: <https://w3id.org/rdf-connect/ontology#>.
 
-rdfc:GlobRead a rdfc:Processor;
+rdfc:GlobRead a owl:Class, rdfs:Class;
+  dc:title "GlobRead";
+  dc:description "Reads all files according to the Glob pattern";
+  rdfc:jsImplementationOf rdfc:Processor;
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "GlobRead";
   rdfc:entrypoint <./>.
@@ -17,35 +19,38 @@ rdfc:GlobRead a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:GlobRead;
   sh:property [
-    sh:path js:glob;
+    sh:path rdfc:glob;
     sh:name "globPattern";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:wait;
+    sh:path rdfc:wait;
     sh:name "wait";
     sh:datatype xsd:integer;
     sh:maxCount 1;
   ], [
-    sh:path js:closeOnEnd;
+    sh:path rdfc:closeOnEnd;
     sh:name "closeOnEnd";
     sh:datatype xsd:boolean;
     sh:maxCount 1;
   ], [
-    sh:path js:binary;
+    sh:path rdfc:binary;
     sh:name "binary";
     sh:datatype xsd:boolean;
     sh:maxCount 1;
   ].
 
-rdfc:FolderRead a rdfc:Processor;
+rdfc:FolderRead a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "Folder Read";
+  dc:description "Reads all files inside the folder";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "ReadFolder";
   rdfc:entrypoint <./>.
@@ -53,32 +58,33 @@ rdfc:FolderRead a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:FolderRead;
   sh:property [
-    sh:path js:folder_location;
+    sh:path rdfc:folder_location;
     sh:name "folder";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:file_stream;
+    sh:path rdfc:file_stream;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:max_memory;
+    sh:path rdfc:max_memory;
     sh:name "maxMemory";
     sh:datatype xsd:double;
     sh:maxCount 1;
   ], [
-    sh:path js:pause;
+    sh:path rdfc:pause;
     sh:name "pause";
     sh:datatype xsd:integer;
     sh:maxCount 1;
   ].
 
-rdfc:Substitute a rdfc:Processor;
-  rdfs:title "String substitute processor";
-  rdfs:description "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
+rdfc:Substitute a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "String substitute processor";
+  dc:description "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "Substitute";
   rdfc:entrypoint <./>.
@@ -86,39 +92,40 @@ rdfc:Substitute a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:Substitute;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:source;
+    sh:path rdfc:source;
     sh:name "source";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:replace;
+    sh:path rdfc:replace;
     sh:name "replace";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:regexp;
+    sh:path rdfc:regexp;
     sh:name "regexp";
     sh:datatype xsd:boolean;
     sh:maxCount 1;
   ].
 
-rdfc:Envsub a rdfc:Processor;
-  rdfs:title "Environment substitute processor";
-  rdfs:description "Substitutes all declared environment variables to their respective values.";
+rdfc:Envsub a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "Environment substitute processor";
+  dc:description "Substitutes all declared environment variables to their respective values.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "Envsub";
   rdfc:entrypoint <./>.
@@ -126,22 +133,23 @@ rdfc:Envsub a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:Envsub;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ].
 
-rdfc:ReadFile a rdfc:Processor;
-  rdfs:title "On demand file reader processor";
-  rdfs:description "Reads a requested file on demand.";
+rdfc:ReadFile a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "On demand file reader processor";
+  dc:description "Reads a requested file on demand.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "GetFileFromFolder";
   rdfc:entrypoint <./>.
@@ -149,28 +157,29 @@ rdfc:ReadFile a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:ReadFile;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:folderPath;
+    sh:path rdfc:folderPath;
     sh:name "folderPath";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ].
 
-rdfc:UnzipFile a rdfc:Processor;
-  rdfs:title "Unzip processor";
-  rdfs:description "Processor to unzip a compressed file and stream out its content.";
+rdfc:UnzipFile a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "Unzip processor";
+  dc:description "Processor to unzip a compressed file and stream out its content.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "UnzipFile";
   rdfc:entrypoint <./>.
@@ -178,28 +187,29 @@ rdfc:UnzipFile a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:UnzipFile;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:outputAsBuffer;
+    sh:path rdfc:outputAsBuffer;
     sh:name "outputAsBuffer";
     sh:datatype xsd:boolean;
     sh:maxCount 1;
     sh:minCount 0;
   ].
 
-rdfc:GunzipFile a rdfc:Processor;
-  rdfs:title "Gunzip processor";
-  rdfs:description "Processor to gunzip a compressed file and stream out its content.";
+rdfc:GunzipFile a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "Gunzip processor";
+  dc:description "Processor to gunzip a compressed file and stream out its content.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "GunzipFile";
   rdfc:entrypoint <./>.
@@ -207,19 +217,19 @@ rdfc:GunzipFile a rdfc:Processor;
 [ ] a sh:NodeShape;
   sh:targetClass rdfc:GunzipFile;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path js:outputAsBuffer;
+    sh:path rdfc:outputAsBuffer;
     sh:name "outputAsBuffer";
     sh:datatype xsd:boolean;
     sh:maxCount 1;

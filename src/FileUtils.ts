@@ -23,9 +23,18 @@ export class GlobRead extends Processor<GlobReadInp> {
         this.wait = this.wait ?? 0;
         this.closeOnEnd = this.closeOnEnd ?? true;
         this.binary = this.binary ?? false;
+
+        if (this.globPattern.startsWith("file://")) {
+            this.globPattern = this.globPattern.slice("file://".length);
+        }
         const jsfiles = await glob(this.globPattern, {});
 
-        console.log("JsFiles " + JSON.stringify(jsfiles));
+        this.logger.info(
+            "JsFiles " +
+                JSON.stringify(jsfiles) +
+                " from glob" +
+                this.globPattern,
+        );
         this.files = await Promise.all(
             jsfiles.map((x) => {
                 this.logger.info(
@@ -40,6 +49,7 @@ export class GlobRead extends Processor<GlobReadInp> {
     }
     async produce(this: GlobReadInp & this): Promise<void> {
         for (const file of this.files) {
+            this.logger.debug("Reading and sending file " + file);
             // If it is larger then 5 mega bytes, stream it over
             if (file.length > 5 * 1024 * 1024) {
                 await this.writer.stream(

@@ -1,6 +1,6 @@
 {
     "name": "@rdfc/file-utils-processors-ts",
-    "version": "0.6.0",
+    "version": "0.7.0-alpha.1",
     "description": "File util functions to be used within the RDF-Connect ecosystem",
     "type": "module",
     "scripts": {
@@ -33,7 +33,7 @@
     },
     "homepage": "https://github.com/rdf-connect/file-utils-processors-ts#readme",
     "dependencies": {
-        "@rdfc/js-runner": "^2.0.0-alpha.6",
+        "@rdfc/js-runner": "^2.0.0-alpha.7",
         "adm-zip": "^0.5.16",
         "glob": "^11.0.1",
         "gunzip-maybe": "^1.4.2",

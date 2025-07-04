@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { NamedNode, Parser, Term } from "n3";
 import { extractShapes, Shapes } from "rdf-lens";
 import {
-    GetMyClassT,
+    FullProc as GetMyClassT,
     Processor,
     Runner,
     WriterInstance,
@@ -12,7 +12,6 @@ import {
 import { TestClient } from "./util";
 import { createLogger, transports } from "winston";
 import { OrchestratorMessage } from "@rdfc/js-runner/lib/reexports";
-import { getProcessorShape } from "@rdfc/js-runner/lib/testUtils";
 import {
     GlobRead,
     ReadFolder,
@@ -25,13 +24,15 @@ import {
 describe("File Utils tests", async () => {
     const logger = createLogger({ transports: [new transports.Console()] });
     const baseIRI = process.cwd() + "/processors.ttl";
-    const configFile = await readFile(baseIRI, { encoding: "utf8" });
+    const configFile =
+        (await readFile(baseIRI, { encoding: "utf8" })) +
+        "[] a sh:NodeShape; sh:targetClass rdfc:Reader, rdfc:Writer.";
     const configQuads = new Parser({ baseIRI: "file://" + baseIRI }).parse(
         configFile,
     );
 
     const shapes = extractShapes(configQuads);
-    const base = "https://w3id.org/rdf-connect/ontology#";
+    const base = "https://w3id.org/rdf-connect#";
     const defined = [
         "GlobRead",
         "FolderRead",
@@ -42,13 +43,38 @@ describe("File Utils tests", async () => {
         "GunzipFile",
     ];
 
-    const processorShape: Shapes = await getProcessorShape();
+    const shapeQuads = `
+@prefix rdfc: <https://w3id.org/rdf-connect#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+[ ] a sh:NodeShape;
+  sh:targetClass <JsProcessorShape>;
+  sh:property [
+    sh:path rdfc:entrypoint;
+    sh:name "location";
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:datatype xsd:string;
+  ], [
+    sh:path rdfc:file;
+    sh:name "file";
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:datatype xsd:string;
+  ], [
+    sh:path rdfc:class;
+    sh:name "clazz";
+    sh:maxCount 1;
+    sh:datatype xsd:string;
+  ].
+`;
+    const processorShapes = extractShapes(new Parser().parse(shapeQuads));
 
     async function getProc<T extends Processor<unknown>>(
         config: string,
         ty: string,
         uri = "http://example.com/ns#processor",
-    ): Promise<T & GetMyClassT<T>> {
+    ): Promise<GetMyClassT<T>> {
         const msgs: OrchestratorMessage[] = [];
         const write = async (x: OrchestratorMessage) => {
             msgs.push(x);
@@ -61,12 +87,13 @@ describe("File Utils tests", async () => {
         );
         await runner.handleOrchMessage({ pipeline: configFile + config });
 
-        const procConfig = processorShape.lenses["JsProcessorShape"].execute({
+        console.log("here");
+        const procConfig = processorShapes.lenses["JsProcessorShape"].execute({
             id: new NamedNode(base + ty),
             quads: configQuads,
         });
 
-        console.log(procConfig);
+        console.log("there", procConfig);
         const proc = await runner.addProcessor<T>({
             config: JSON.stringify(procConfig),
             arguments: "",
@@ -77,6 +104,7 @@ describe("File Utils tests", async () => {
 
     test("Shapes are all defined", () => {
         const names = Object.keys(shapes.lenses);
+        console.log({ names });
         for (const n of defined) {
             expect(names).includes(
                 base + n,
@@ -89,13 +117,13 @@ describe("File Utils tests", async () => {
             names.length,
             "Unexpected name " +
                 names.filter((x) => !defined.includes(x.replace(base, ""))),
-        ).toBe(defined.length + 4);
+        ).toBe(defined.length + 6);
     });
 
     test("Processors follow the required shape", () => {
         for (const n of defined) {
             const proc = <{ file: Term; location: string; clazz: string }>(
-                processorShape.lenses["JsProcessorShape"].execute({
+                processorShapes.lenses["JsProcessorShape"].execute({
                     id: new NamedNode(base + n),
                     quads: configQuads,
                 })
@@ -106,14 +134,14 @@ describe("File Utils tests", async () => {
         }
     });
 
-    test("js:GlobRead is properly defined", async () => {
+    test("rdfc:GlobRead is properly defined", async () => {
         const proc = await getProc<GlobRead>(
             `<http://example.com/ns#processor> a rdfc:GlobRead; 
-                js:glob "./*.json"; 
-                js:output <jw>;
-                js:wait 0;
-                js:closeOnEnd true;
-                js:binary true.`,
+                rdfc:glob "./*.json"; 
+                rdfc:output <jw>;
+                rdfc:wait 0;
+                rdfc:closeOnEnd true;
+                rdfc:binary true.`,
             "GlobRead",
         );
 
@@ -126,13 +154,13 @@ describe("File Utils tests", async () => {
         expect(proc.binary).toBe(true);
     });
 
-    test("js:FolderRead is properly defined", async () => {
+    test("rdfc:FolderRead is properly defined", async () => {
         const proc = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfc:FolderRead; 
-                js:folder_location "./src"; 
-                js:file_stream <jw>;
-                js:max_memory 3.5;
-                js:pause 3000.`,
+                rdfc:folder_location "./src"; 
+                rdfc:file_stream <jw>;
+                rdfc:max_memory 3.5;
+                rdfc:pause 3000.`,
             "FolderRead",
         );
 
@@ -142,11 +170,11 @@ describe("File Utils tests", async () => {
         expect(proc.writer).toBeInstanceOf(WriterInstance);
     });
 
-    test("js:Envsub is properly defined", async () => {
+    test("rdfc:Envsub is properly defined", async () => {
         const proc = await getProc<Envsub>(
             `<http://example.com/ns#processor> a rdfc:Envsub; 
-                js:input <jr>; 
-                js:output <jw>.`,
+                rdfc:input <jr>; 
+                rdfc:output <jw>.`,
             "Envsub",
         );
 
@@ -154,14 +182,14 @@ describe("File Utils tests", async () => {
         expect(proc.reader).toBeInstanceOf(ReaderInstance);
     });
 
-    test("js:Substitute is properly defined", async () => {
+    test("rdfc:Substitute is properly defined", async () => {
         const proc = await getProc<Substitute>(
             `<http://example.com/ns#processor> a rdfc:Substitute; 
-                js:input <jr>;
-                js:output <jw>;
-                js:source "life";
-                js:replace "42";
-                js:regexp false.`,
+                rdfc:input <jr>;
+                rdfc:output <jw>;
+                rdfc:source "life";
+                rdfc:replace "42";
+                rdfc:regexp false.`,
             "Substitute",
         );
 
@@ -172,12 +200,12 @@ describe("File Utils tests", async () => {
         expect(proc.regexp).toBe(false);
     });
 
-    test("js:ReadFile is properly defined", async () => {
+    test("rdfc:ReadFile is properly defined", async () => {
         const proc = await getProc<GetFileFromFolder>(
             `<http://example.com/ns#processor> a rdfc:ReadFile; 
-                js:input <jr>;
-                js:output <jw>;
-                js:folderPath ".".`,
+                rdfc:input <jr>;
+                rdfc:output <jw>;
+                rdfc:folderPath ".".`,
             "ReadFile",
         );
 
@@ -186,11 +214,11 @@ describe("File Utils tests", async () => {
         expect(proc.folderPath).toBe(".");
     });
 
-    test("js:UnzipFile is properly defined", async () => {
+    test("rdfc:UnzipFile is properly defined", async () => {
         const proc = await getProc<UnzipFile>(
             `<http://example.com/ns#processor> a rdfc:UnzipFile; 
-                js:input <jr>;
-                js:output <jw>.`,
+                rdfc:input <jr>;
+                rdfc:output <jw>.`,
             "UnzipFile",
         );
 
@@ -198,11 +226,11 @@ describe("File Utils tests", async () => {
         expect(proc.reader).toBeInstanceOf(ReaderInstance);
     });
 
-    test("js:GunzipFile is properly defined", async () => {
+    test("rdfc:GunzipFile is properly defined", async () => {
         const proc = await getProc<UnzipFile>(
             `<http://example.com/ns#processor> a rdfc:GunzipFile; 
-                js:input <jr>;
-                js:output <jw>.`,
+                rdfc:input <jr>;
+                rdfc:output <jw>.`,
             "GunzipFile",
         );
 
