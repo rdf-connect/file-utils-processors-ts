@@ -1,266 +1,240 @@
+import { readFile } from "fs/promises";
 import { describe, expect, test } from "vitest";
-import { extractProcessors, extractSteps, Source } from "@rdfc/js-runner";
+import { NamedNode, Parser, Term } from "n3";
+import { extractShapes, Shapes } from "rdf-lens";
+import {
+    FullProc as GetMyClassT,
+    Processor,
+    Runner,
+    WriterInstance,
+    ReaderInstance,
+} from "@rdfc/js-runner";
+import { TestClient } from "./util";
+import { createLogger, transports } from "winston";
+import { OrchestratorMessage } from "@rdfc/js-runner/lib/reexports";
+import {
+    GlobRead,
+    ReadFolder,
+    UnzipFile,
+    Envsub,
+    Substitute,
+    GetFileFromFolder,
+} from "../src/FileUtils";
 
+describe("File Utils tests", async () => {
+    const logger = createLogger({ transports: [new transports.Console()] });
+    const baseIRI = process.cwd() + "/processors.ttl";
+    const configFile =
+        (await readFile(baseIRI, { encoding: "utf8" })) +
+        "[] a sh:NodeShape; sh:targetClass rdfc:Reader, rdfc:Writer.";
+    const configQuads = new Parser({ baseIRI: "file://" + baseIRI }).parse(
+        configFile,
+    );
 
-describe("File Utils tests", () => {
-    const pipeline = `
-        @prefix js: <https://w3id.org/conn/js#>.
-        @prefix ws: <https://w3id.org/conn/ws#>.
-        @prefix : <https://w3id.org/conn#>.
-        @prefix owl: <http://www.w3.org/2002/07/owl#>.
-        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
-        @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-        @prefix sh: <http://www.w3.org/ns/shacl#>.
+    const shapes = extractShapes(configQuads);
+    const base = "https://w3id.org/rdf-connect#";
+    const defined = [
+        "GlobRead",
+        "FolderRead",
+        "Substitute",
+        "Envsub",
+        "ReadFile",
+        "UnzipFile",
+        "GunzipFile",
+    ];
 
-        <> owl:imports <./node_modules/@rdfc/js-runner/ontology.ttl>, <./processors.ttl>.
+    const shapeQuads = `
+@prefix rdfc: <https://w3id.org/rdf-connect#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+[ ] a sh:NodeShape;
+  sh:targetClass <JsProcessorShape>;
+  sh:property [
+    sh:path rdfc:entrypoint;
+    sh:name "location";
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:datatype xsd:string;
+  ], [
+    sh:path rdfc:file;
+    sh:name "file";
+    sh:minCount 1;
+    sh:maxCount 1;
+    sh:datatype xsd:string;
+  ], [
+    sh:path rdfc:class;
+    sh:name "clazz";
+    sh:maxCount 1;
+    sh:datatype xsd:string;
+  ].
+`;
+    const processorShapes = extractShapes(new Parser().parse(shapeQuads));
 
-        [ ] a :Channel;
-            :reader <jr>;
-            :writer <jw>.
-            
-        <jr> a js:JsReaderChannel.
-        <jw> a js:JsWriterChannel.
-    `;
-
-    const baseIRI = process.cwd() + "/config.ttl";
-
-    test("js:GlobRead is properly defined", async () => {
-        const proc = `
-            [ ] a js:GlobRead; 
-                js:glob "./*"; 
-                js:output <jw>;
-                js:wait 0;
-                js:closeOnEnd true;
-                js:binary true.
-        `;
-
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
+    async function getProc<T extends Processor<unknown>>(
+        config: string,
+        ty: string,
+        uri = "http://example.com/ns#processor",
+    ): Promise<GetMyClassT<T>> {
+        const msgs: OrchestratorMessage[] = [];
+        const write = async (x: OrchestratorMessage) => {
+            msgs.push(x);
         };
+        const runner = new Runner(
+            new TestClient(),
+            write,
+            "http://example.com/ns#",
+            logger,
+        );
+        await runner.handleOrchMessage({ pipeline: configFile + config });
 
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const env = processors.find((x) => x.ty.value.endsWith("GlobRead"))!;
-        expect(env).toBeDefined();
+        console.log("here");
+        const procConfig = processorShapes.lenses["JsProcessorShape"].execute({
+            id: new NamedNode(base + ty),
+            quads: configQuads,
+        });
 
-        const argss = extractSteps(env, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(5);
+        console.log("there", procConfig);
+        const proc = await runner.addProcessor<T>({
+            config: JSON.stringify(procConfig),
+            arguments: "",
+            uri,
+        });
+        return proc;
+    }
 
-        const [[glob, output, wait, closeOnEnd, binary]] = argss;
-        expect(glob).toBe("./*");
-        testWriter(output);
-        expect(wait).toBe(0);
-        expect(closeOnEnd).toBeTruthy();
-        expect(binary).toBeTruthy();
+    test("Shapes are all defined", () => {
+        const names = Object.keys(shapes.lenses);
+        console.log({ names });
+        for (const n of defined) {
+            expect(names).includes(
+                base + n,
+                "Expected " + n + " to be defined.",
+            );
+        }
 
-        await checkProc(env.file, env.func);
+        // PathLens, CBD, Context, TypedExtract are always defined
+        expect(
+            names.length,
+            "Unexpected name " +
+                names.filter((x) => !defined.includes(x.replace(base, ""))),
+        ).toBe(defined.length + 6);
     });
 
-    test("js:FolderRead is properly defined", async () => {
-        const proc = `
-            [ ] a js:FolderRead; 
-                js:folder_location "./data"; 
-                js:file_stream <jw>;
-                js:max_memory 3.5;
-                js:pause 3000.
-        `;
-
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
-        };
-
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const env = processors.find((x) => x.ty.value.endsWith("FolderRead"))!;
-        expect(env).toBeDefined();
-
-        const argss = extractSteps(env, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(4);
-
-        const [[folder_location, file_Stream, max_memory, pause]] = argss;
-        expect(folder_location).toBe("./data");
-        testWriter(file_Stream);
-        expect(max_memory).toBe(3.5);
-        expect(pause).toBe(3000);
-
-        await checkProc(env.file, env.func);
+    test("Processors follow the required shape", () => {
+        for (const n of defined) {
+            const proc = <{ file: Term; location: string; clazz: string }>(
+                processorShapes.lenses["JsProcessorShape"].execute({
+                    id: new NamedNode(base + n),
+                    quads: configQuads,
+                })
+            );
+            expect(proc.file, n + " has file").toBeDefined();
+            expect(proc.location, n + " has location").toBeDefined();
+            expect(proc.clazz, n + " has clazz").toBeDefined();
+        }
     });
 
-    test("js:Envsub is properly defined", async () => {
-        const proc = `
-            [ ] a js:Envsub; 
-                js:input <jr>; 
-                js:output <jw>.
-        `;
+    test("rdfc:GlobRead is properly defined", async () => {
+        const proc = await getProc<GlobRead>(
+            `<http://example.com/ns#processor> a rdfc:GlobRead; 
+                rdfc:glob "./*.json"; 
+                rdfc:output <jw>;
+                rdfc:wait 0;
+                rdfc:closeOnEnd true;
+                rdfc:binary true.`,
+            "GlobRead",
+        );
 
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
-        };
+        expect(proc.constructor.name).toBe(GlobRead.name);
 
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const env = processors.find((x) => x.ty.value.endsWith("Envsub"))!;
-        expect(env).toBeDefined();
-
-        const argss = extractSteps(env, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(2);
-
-        const [[input, output]] = argss;
-        testReader(input);
-        testWriter(output);
-
-        await checkProc(env.file, env.func);
+        expect(proc.globPattern).toBe("./*.json");
+        expect(proc.wait).toBe(0);
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.closeOnEnd).toBe(true);
+        expect(proc.binary).toBe(true);
     });
 
-    test("js:Substitute is properly defined", async () => {
-        const proc = `
-            [ ] a js:Substitute; 
-                js:input <jr>;
-                js:output <jw>;
-                js:source "life";
-                js:replace "42";
-                js:regexp false.
-        `;
+    test("rdfc:FolderRead is properly defined", async () => {
+        const proc = await getProc<ReadFolder>(
+            `<http://example.com/ns#processor> a rdfc:FolderRead; 
+                rdfc:folder_location "./src"; 
+                rdfc:file_stream <jw>;
+                rdfc:max_memory 3.5;
+                rdfc:pause 3000.`,
+            "FolderRead",
+        );
 
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
-        };
-
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const sub = processors.find((x) => x.ty.value.endsWith("Substitute"))!;
-
-        expect(sub).toBeDefined();
-        const argss = extractSteps(sub, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(5);
-
-        const [[input, output, s, replace, regexp]] = argss;
-        testReader(input);
-        testWriter(output);
-        expect(s).toBe("life");
-        expect(replace).toBe("42");
-        expect(regexp).toBe(false);
-
-        await checkProc(sub.file, sub.func);
+        expect(proc.folder).toBe("./src");
+        expect(proc.maxMemory).toBe(3.5);
+        expect(proc.pause).toBe(3000);
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
     });
 
-    test("js:ReadFile is properly defined", async () => {
-        const proc = `
-            [ ] a js:ReadFile; 
-                js:input <jr>;
-                js:output <jw>;
-                js:folderPath ".".
-        `;
+    test("rdfc:Envsub is properly defined", async () => {
+        const proc = await getProc<Envsub>(
+            `<http://example.com/ns#processor> a rdfc:Envsub; 
+                rdfc:input <jr>; 
+                rdfc:output <jw>.`,
+            "Envsub",
+        );
 
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
-        };
-
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const sub = processors.find((x) => x.ty.value.endsWith("ReadFile"))!;
-
-        expect(sub).toBeDefined();
-        const argss = extractSteps(sub, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(3);
-
-        const [[input, folderPath, output]] = argss;
-        testReader(input);
-        testWriter(output);
-        expect(folderPath).toBe(".");
-
-        await checkProc(sub.file, sub.func);
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.reader).toBeInstanceOf(ReaderInstance);
     });
 
-    test("js:UnzipFile is properly defined", async () => {
-        const proc = `
-            [ ] a js:UnzipFile; 
-                js:input <jr>;
-                js:output <jw>;
-                js:outputAsBuffer false.
-        `;
+    test("rdfc:Substitute is properly defined", async () => {
+        const proc = await getProc<Substitute>(
+            `<http://example.com/ns#processor> a rdfc:Substitute; 
+                rdfc:input <jr>;
+                rdfc:output <jw>;
+                rdfc:source "life";
+                rdfc:replace "42";
+                rdfc:regexp false.`,
+            "Substitute",
+        );
 
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
-        };
-
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const sub = processors.find((x) => x.ty.value.endsWith("UnzipFile"))!;
-
-        expect(sub).toBeDefined();
-        const argss = extractSteps(sub, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(3);
-
-        const [[input, output, outputAsBuffer]] = argss;
-        testReader(input);
-        testWriter(output);
-        expect(outputAsBuffer).toBe(false);
-
-        await checkProc(sub.file, sub.func);
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.source).toBe("life");
+        expect(proc.replace).toBe("42");
+        expect(proc.regexp).toBe(false);
     });
 
-    test("js:GunzipFile is properly defined", async () => {
-        const proc = `
-            [ ] a js:GunzipFile; 
-                js:input <jr>;
-                js:output <jw>;
-                js:outputAsBuffer false.
-        `;
+    test("rdfc:ReadFile is properly defined", async () => {
+        const proc = await getProc<GetFileFromFolder>(
+            `<http://example.com/ns#processor> a rdfc:ReadFile; 
+                rdfc:input <jr>;
+                rdfc:output <jw>;
+                rdfc:folderPath ".".`,
+            "ReadFile",
+        );
 
-        const source: Source = {
-            value: pipeline + proc,
-            baseIRI,
-            type: "memory",
-        };
-
-        const { processors, quads, shapes: config } = await extractProcessors(source);
-        const sub = processors.find((x) => x.ty.value.endsWith("GunzipFile"))!;
-
-        expect(sub).toBeDefined();
-        const argss = extractSteps(sub, quads, config);
-        expect(argss.length).toBe(1);
-        expect(argss[0].length).toBe(3);
-
-        const [[input, output, outputAsBuffer]] = argss;
-        testReader(input);
-        testWriter(output);
-        expect(outputAsBuffer).toBe(false);
-
-        await checkProc(sub.file, sub.func);
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.folderPath).toBe(".");
     });
 
+    test("rdfc:UnzipFile is properly defined", async () => {
+        const proc = await getProc<UnzipFile>(
+            `<http://example.com/ns#processor> a rdfc:UnzipFile; 
+                rdfc:input <jr>;
+                rdfc:output <jw>.`,
+            "UnzipFile",
+        );
+
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+    });
+
+    test("rdfc:GunzipFile is properly defined", async () => {
+        const proc = await getProc<UnzipFile>(
+            `<http://example.com/ns#processor> a rdfc:GunzipFile; 
+                rdfc:input <jr>;
+                rdfc:output <jw>.`,
+            "GunzipFile",
+        );
+
+        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+    });
 });
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function testReader(arg: any) {
-    expect(arg).toBeInstanceOf(Object);
-    expect(arg.ty).toBeDefined();
-    expect(arg.config.channel).toBeDefined();
-    expect(arg.config.channel.id).toBeDefined();
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function testWriter(arg: any) {
-    expect(arg).toBeInstanceOf(Object);
-    expect(arg.ty).toBeDefined();
-    expect(arg.config.channel).toBeDefined();
-    expect(arg.config.channel.id).toBeDefined();
-}
-
-async function checkProc(location: string, func: string) {
-    const mod = await import(location);
-    expect(mod[func]).toBeDefined();
-}

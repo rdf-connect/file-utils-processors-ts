@@ -1,33 +1,176 @@
 # file-utils-processors-ts
 
-[![Bun CI](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml) [![npm](https://img.shields.io/npm/v/@rdfc/file-utils-processors-ts.svg?style=popout)](https://npmjs.com/package/@rdfc/file-utils-processors-ts)
+[![Build and tests with Node.js](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml)
 
-[RDF-Connect](https://rdf-connect.github.io/rdfc.github.io/) Typescript processors for handling file operations. It currently exposes 6 functions:
+This repository provides a set of processors for reading, transforming, and extracting files in RDF-Connect pipelines.  
+It includes utilities for reading files from folders or glob patterns, substituting strings or environment variables, reading files on demand, and handling compressed files (zip/gzip).
 
-### [`js:GlobRead`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L10)
+These processors are designed to integrate seamlessly into RDF-Connect pipelines using the [rdfc:NodeRunner](https://github.com/rdf-connect/js-runner).
 
-This function relies on the [`glob`](https://www.npmjs.com/package/glob) library to select a set of files according to a shell expression and stream them out in a sequential fashion. A `wait` parameter can be defined to wait x milliseconds between file streaming operations.
+---
 
-### [`js:FolderRead`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L70)
+## Usage
 
-This function reads all the files present in a given folder and streams out their content in a sequential fashion. A `maxMemory` parameter can be given (in GB) to defined threshold of maximum used memory by the streaming process. When the threshold is exceeded, the streaming process will pause for as many  milliseconds as defined by the `pause` parameter.
+To use these processors, import the package into your RDF-Connect pipeline configuration and reference the required processors.
 
-### [`js:Substitute`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L121)
+### Installation
 
-This function transform a stream by applying a given string substitution on each of the messages. The matching string can be a regex defined by the `source` property and setting the `regexp` property to `true`.
+```bash
+npm install
+npm run build
+```
 
-### [`js:Envsub`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L185)
+Or install from NPM:
 
-This function substitute all the defined environment variables on each of the elements of an input stream that have been labeled with a `${VAR_NAME}` pattern.
+```bash
+npm install @rdfc/file-utils-processors-ts
+```
 
-### [`js:ReadFile`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L220)
+Next, you can add the processors to your pipeline configuration as follows:
 
-This function can read on demand and push downstream the contents of a file located in a predefined folder. This processor is used mostly for testing and demonstrating pipeline implementations.
+```turtle
+@prefix rdfc: <https://w3id.org/rdf-connect#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
 
-### [`js:UnzipFile`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L265)
+### Import the processor definitions
+<> owl:imports <./node_modules/@rdfc/file-utils-processors-ts/processors.ttl>.
 
-This function can receive a zipped file in the form of a Buffer and stream out its decompressed contents.
+### Define the channels your processor needs
+<in> a rdfc:Reader, rdfc:Writer.
+<out> a rdfc:Reader, rdfc:Writer.
 
-### [`js:GunzipFile`](https://github.com/rdf-connect/file-utils-processors-ts/blob/main/processors.ttl#L310)
+### Attach the processor to the pipeline under the NodeRunner
+# Add the `rdfc:processor <folderReader>` statement under the `rdfc:consistsOf` statement of the `rdfc:NodeRunner`
 
-This function can receive a gzipped file in the form of a Buffer and stream out its decompressed contents.
+### Define and configure the processors
+<folderReader> a rdfc:FolderRead;
+    rdfc:folder_location "./data";
+    rdfc:file_stream <out>.
+```
+
+---
+
+## Processors and Configuration
+
+### 📂 `rdfc:GlobRead` – Glob-based File Reader
+
+Reads all files matching a given glob pattern.
+
+**Parameters:**
+
+- `rdfc:glob` (`string`, required): Glob pattern to select files.
+- `rdfc:output` (`rdfc:Writer`, required): Output channel to stream file contents.
+- `rdfc:wait` (`integer`, optional): Delay (ms) before reading files.
+- `rdfc:closeOnEnd` (`boolean`, optional): Whether to close the stream after finishing.
+- `rdfc:binary` (`boolean`, optional): If true, streams binary data instead of text.
+
+---
+
+### 📁 `rdfc:FolderRead` – Folder File Reader
+
+Reads all files inside a folder.
+
+**Parameters:**
+
+- `rdfc:folder_location` (`string`, required): Path to the folder.
+- `rdfc:file_stream` (`rdfc:Writer`, required): Output channel to stream file contents.
+- `rdfc:max_memory` (`double`, optional): Max memory usage allowed (in MB).
+- `rdfc:pause` (`integer`, optional): Pause duration (ms) between file reads.
+
+---
+
+### 🔄 `rdfc:Substitute` – String Substitution Processor
+
+Performs string substitution (supports regex) on messages in the stream.
+
+**Parameters:**
+
+- `rdfc:input` (`rdfc:Reader`, required): Input channel.
+- `rdfc:output` (`rdfc:Writer`, required): Output channel.
+- `rdfc:source` (`string`, required): Source string or regex to match.
+- `rdfc:replace` (`string`, required): Replacement string.
+- `rdfc:regexp` (`boolean`, optional): If true, treat `source` as a regex.
+
+---
+
+### 🌍 `rdfc:Envsub` – Environment Variable Substitution
+
+Substitutes environment variables in the stream with their values.
+
+**Parameters:**
+
+- `rdfc:input` (`rdfc:Reader`, required): Input channel.
+- `rdfc:output` (`rdfc:Writer`, required): Output channel.
+
+---
+
+### 📄 `rdfc:ReadFile` – On-Demand File Reader
+
+Reads a requested file from a given folder.
+
+**Parameters:**
+
+- `rdfc:input` (`rdfc:Reader`, required): Input channel (file requests).
+- `rdfc:folderPath` (`string`, required): Path to the folder containing files.
+- `rdfc:output` (`rdfc:Writer`, required): Output channel for file contents.
+
+---
+
+### 📦 `rdfc:UnzipFile` – Zip File Extractor
+
+Unzips a compressed file and streams its content.
+
+**Parameters:**
+
+- `rdfc:input` (`rdfc:Reader`, required): Input channel (zip file).
+- `rdfc:output` (`rdfc:Writer`, required): Output channel (extracted contents).
+- `rdfc:outputAsBuffer` (`boolean`, optional): If true, outputs raw buffers instead of strings.
+
+---
+
+### 🗜️ `rdfc:GunzipFile` – Gzip File Extractor
+
+Gunzip a compressed file and stream out its content.
+
+**Parameters:**
+
+- `rdfc:input` (`rdfc:Reader`, required): Input channel (gzip file).
+- `rdfc:output` (`rdfc:Writer`, required): Output channel (extracted contents).
+- `rdfc:outputAsBuffer` (`boolean`, optional): If true, outputs raw buffers instead of strings.
+
+---
+
+## Example Pipelines
+
+### Example 1: Reading all `.txt` files in a folder and logging them
+
+```turtle
+<reader> a rdfc:GlobRead;
+rdfc:glob "./data/*.txt";
+rdfc:output <out>.
+
+<logger> a rdfc:LogProcessorJs;
+    rdfc:reader <out>;
+    rdfc:level "info";
+    rdfc:label "glob-reader".
+```
+
+### Example 2: Substituting strings in a stream
+
+```turtle
+<substitute> a rdfc:Substitute;
+rdfc:reader <in>;
+rdfc:writer <out>;
+rdfc:source "World";
+rdfc:replace "RDF-Connect";
+rdfc:regexp false.
+```
+
+### Example 3: Reading and unzipping a file
+
+```turtle
+<unzipper> a rdfc:UnzipFile;
+rdfc:reader <in>;
+rdfc:writer <out>;
+rdfc:outputAsBuffer true.
+```

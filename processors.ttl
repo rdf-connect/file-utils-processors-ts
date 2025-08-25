@@ -1,353 +1,238 @@
-@prefix js: <https://w3id.org/conn/js#> .
-@prefix fno: <https://w3id.org/function/ontology#> .
-@prefix fnom: <https://w3id.org/function/vocabulary/mapping#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <https://w3id.org/conn#> .
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix dc: <http://purl.org/dc/terms/> .
+@prefix rdfc: <https://w3id.org/rdf-connect#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix fno: <https://w3id.org/function/ontology#>.
+@prefix fnom: <https://w3id.org/function/vocabulary/mapping#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix : <https://w3id.org/conn#>.
+@prefix sh: <http://www.w3.org/ns/shacl#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix dc: <http://purl.org/dc/terms/>.
 
-js:GlobRead a js:JsProcess;
-  js:file <./lib/FileUtils.js>;
-  js:function "globRead";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "globPattern";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "wait";
-      fnom:implementationParameterPosition "2"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "closeOnEnd";
-      fnom:implementationParameterPosition "3"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "binary";
-      fnom:implementationParameterPosition "4"^^xsd:integer
-    ]
-  ].
+rdfc:GlobRead a owl:Class, rdfs:Class;
+  dc:title "GlobRead";
+  dc:description "Reads all files according to the Glob pattern";
+  rdfc:jsImplementationOf rdfc:Processor;
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "GlobRead";
+  rdfc:entrypoint <./>.
 
-[] a sh:NodeShape;
-  sh:targetClass js:GlobRead;
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:GlobRead;
   sh:property [
-    sh:path js:glob;
+    sh:path rdfc:glob;
     sh:name "globPattern";
     sh:datatype xsd:string;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
-    sh:class :WriterChannel;
+    sh:class rdfc:Writer;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:wait;
+    sh:path rdfc:wait;
     sh:name "wait";
     sh:datatype xsd:integer;
-    sh:maxCount 1
+    sh:maxCount 1;
   ], [
-    sh:path js:closeOnEnd;
+    sh:path rdfc:closeOnEnd;
     sh:name "closeOnEnd";
     sh:datatype xsd:boolean;
-    sh:maxCount 1
+    sh:maxCount 1;
   ], [
-    sh:path js:binary;
+    sh:path rdfc:binary;
     sh:name "binary";
     sh:datatype xsd:boolean;
-    sh:maxCount 1
+    sh:maxCount 1;
   ].
 
-js:FolderRead a js:JsProcess;
-  js:file <./lib/FileUtils.js>;
-  js:function "readFolder";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "folder";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "maxMemory";
-      fnom:implementationParameterPosition "2"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "pause";
-      fnom:implementationParameterPosition "3"^^xsd:integer
-    ]
-  ].
+rdfc:FolderRead a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "Folder Read";
+  dc:description "Reads all files inside the folder";
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "ReadFolder";
+  rdfc:entrypoint <./>.
 
-[] a sh:NodeShape;
-  sh:targetClass js:FolderRead;
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:FolderRead;
   sh:property [
-    sh:path js:folder_location;
+    sh:path rdfc:folder_location;
     sh:name "folder";
     sh:datatype xsd:string;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:file_stream;
+    sh:path rdfc:file_stream;
     sh:name "writer";
-    sh:class :WriterChannel;
+    sh:class rdfc:Writer;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:max_memory;
+    sh:path rdfc:max_memory;
     sh:name "maxMemory";
     sh:datatype xsd:double;
-    sh:maxCount 1
+    sh:maxCount 1;
   ], [
-    sh:path js:pause;
+    sh:path rdfc:pause;
     sh:name "pause";
     sh:datatype xsd:integer;
-    sh:maxCount 1
+    sh:maxCount 1;
   ].
 
-js:Substitute a js:JsProcess;
+rdfc:Substitute a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
   dc:title "String substitute processor";
   dc:description "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
-  js:file <./lib/FileUtils.js>;
-  js:function "substitute";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "reader";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "source";
-      fnom:implementationParameterPosition "2"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "replace";
-      fnom:implementationParameterPosition "3"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "regexp";
-      fnom:implementationParameterPosition "4"^^xsd:integer
-    ]
-].
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "Substitute";
+  rdfc:entrypoint <./>.
 
-[] a sh:NodeShape;
-  sh:targetClass js:Substitute;
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:Substitute;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
-    sh:class :ReaderChannel;
+    sh:class rdfc:Reader;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
-    sh:class :WriterChannel;
+    sh:class rdfc:Writer;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:source;
+    sh:path rdfc:source;
     sh:name "source";
     sh:datatype xsd:string;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:replace;
+    sh:path rdfc:replace;
     sh:name "replace";
     sh:datatype xsd:string;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:regexp;
+    sh:path rdfc:regexp;
     sh:name "regexp";
     sh:datatype xsd:boolean;
-    sh:maxCount 1
+    sh:maxCount 1;
   ].
 
-js:Envsub a js:JsProcess;
+rdfc:Envsub a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
   dc:title "Environment substitute processor";
   dc:description "Substitutes all declared environment variables to their respective values.";
-  js:file <./lib/FileUtils.js>;
-  js:function "envsub";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "reader";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ]
-  ].
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "Envsub";
+  rdfc:entrypoint <./>.
 
-[] a sh:NodeShape;
-  sh:targetClass js:Envsub;
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:Envsub;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
-    sh:class :ReaderChannel;
+    sh:class rdfc:Reader;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
-    sh:class :WriterChannel;
+    sh:class rdfc:Writer;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ].
 
-js:ReadFile a js:JsProcess;
+rdfc:ReadFile a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
   dc:title "On demand file reader processor";
   dc:description "Reads a requested file on demand.";
-  js:file <./lib/FileUtils.js>;
-  js:function "getFileFromFolder";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "reader";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "folderPath";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "2"^^xsd:integer
-    ]
-  ].
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "GetFileFromFolder";
+  rdfc:entrypoint <./>.
 
-[] a sh:NodeShape;
-  sh:targetClass js:ReadFile;
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:ReadFile;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
-    sh:class :ReaderChannel;
+    sh:class rdfc:Reader;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:folderPath;
+    sh:path rdfc:folderPath;
     sh:name "folderPath";
     sh:datatype xsd:string;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
-    sh:class :WriterChannel;
+    sh:class rdfc:Writer;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ].
 
-js:UnzipFile a js:JsProcess;
+rdfc:UnzipFile a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
   dc:title "Unzip processor";
   dc:description "Processor to unzip a compressed file and stream out its content.";
-  js:file <./lib/FileUtils.js>;
-  js:function "unzipFile";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "reader";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "outputAsBuffer";
-      fnom:implementationParameterPosition "2"^^xsd:integer
-    ]
-  ].
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "UnzipFile";
+  rdfc:entrypoint <./>.
 
-[] a sh:NodeShape;
-  sh:targetClass js:UnzipFile;
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:UnzipFile;
   sh:property [
-    sh:path js:input;
+    sh:path rdfc:input;
     sh:name "reader";
-    sh:class :ReaderChannel;
+    sh:class rdfc:Reader;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:output;
+    sh:path rdfc:output;
     sh:name "writer";
-    sh:class :WriterChannel;
+    sh:class rdfc:Writer;
     sh:maxCount 1;
-    sh:minCount 1
+    sh:minCount 1;
   ], [
-    sh:path js:outputAsBuffer;
+    sh:path rdfc:outputAsBuffer;
     sh:name "outputAsBuffer";
     sh:datatype xsd:boolean;
     sh:maxCount 1;
-    sh:minCount 0
+    sh:minCount 0;
   ].
 
-js:GunzipFile a js:JsProcess;
+rdfc:GunzipFile a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
   dc:title "Gunzip processor";
   dc:description "Processor to gunzip a compressed file and stream out its content.";
-  js:file <./lib/FileUtils.js>;
-  js:function "gunzipFile";
-  js:location <./>;
-  js:mapping [
-    a fno:Mapping;
-    fno:parameterMapping [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "reader";
-      fnom:implementationParameterPosition "0"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "writer";
-      fnom:implementationParameterPosition "1"^^xsd:integer
-    ], [
-      a fnom:PositionParameterMapping ;
-      fnom:functionParameter "outputAsBuffer";
-      fnom:implementationParameterPosition "2"^^xsd:integer
-    ]
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "GunzipFile";
+  rdfc:entrypoint <./>.
+
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:GunzipFile;
+  sh:property [
+    sh:path rdfc:input;
+    sh:name "reader";
+    sh:class rdfc:Reader;
+    sh:maxCount 1;
+    sh:minCount 1;
+  ], [
+    sh:path rdfc:output;
+    sh:name "writer";
+    sh:class rdfc:Writer;
+    sh:maxCount 1;
+    sh:minCount 1;
+  ], [
+    sh:path rdfc:outputAsBuffer;
+    sh:name "outputAsBuffer";
+    sh:datatype xsd:boolean;
+    sh:maxCount 1;
+    sh:minCount 0;
   ].
 
-[] a sh:NodeShape;
-   sh:targetClass js:GunzipFile;
-   sh:property [
-     sh:path js:input;
-     sh:name "reader";
-     sh:class :ReaderChannel;
-     sh:maxCount 1;
-     sh:minCount 1
-   ], [
-     sh:path js:output;
-     sh:name "writer";
-     sh:class :WriterChannel;
-     sh:maxCount 1;
-     sh:minCount 1
-   ], [
-     sh:path js:outputAsBuffer;
-     sh:name "outputAsBuffer";
-     sh:datatype xsd:boolean;
-     sh:maxCount 1;
-     sh:minCount 0
-   ].

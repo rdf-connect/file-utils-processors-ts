@@ -1,23 +1,60 @@
 import { describe, expect, test } from "vitest";
 import { readFile } from "fs/promises";
-import { SimpleStream } from "@rdfc/js-runner";
-import {globRead, readFolder, substitute, envsub, getFileFromFolder, unzipFile, gunzipFile} from "../src/FileUtils";
+import {
+    Envsub,
+    GetFileFromFolder,
+    GlobRead,
+    GunzipFile,
+    ReadFolder,
+    Substitute,
+    UnzipFile,
+} from "../src/FileUtils";
+import {
+    createWriter,
+    createReader,
+    uri,
+    logger,
+} from "@rdfc/js-runner/lib/testUtils";
+import { FullProc, ReaderInstance } from "@rdfc/js-runner";
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+async function strings(reader: ReaderInstance) {
+    const out: string[] = [];
+
+    for await (const st of reader.strings()) {
+        out.push(st);
+    }
+
+    return out;
+}
 
 describe("Functional tests for the globRead RDF-Connect function", () => {
     test("Given a glob pattern files are read and streamed out", async () => {
         expect.assertions(1);
 
-        const writeStream = new SimpleStream<string>();
+        const [writeStream, reader] = createWriter();
 
-        let output = "";
-        writeStream.data(data => {
-            output += data;
-        }).on("end", () => {
-            expect(output.length).toBeGreaterThan(0);
-        });
+        const sts = strings(reader);
 
-        // Await and execute returned function of processor
-        await (await globRead("./tests/*.ts", writeStream))();
+        const proc = new GlobRead(
+            {
+                writer: writeStream,
+                binary: false,
+                closeOnEnd: true,
+                wait: 0,
+                globPattern: "./tests/*.ts",
+            },
+            logger,
+        ) as FullProc<GlobRead>;
+
+        await proc.init();
+
+        await Promise.all([proc.produce(), proc.transform()]);
+
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
     });
 });
 
@@ -25,123 +62,197 @@ describe("Functional tests for the readFolder RDF-Connect function", () => {
     test("Given a folder path files are read and streamed out", async () => {
         expect.assertions(1);
 
-        const writeStream = new SimpleStream<string>();
+        const [writeStream, reader] = createWriter();
 
-        let output = "";
-        writeStream.data(data => {
-            output += data;
-        }).on("end", () => {
-            expect(output.length).toBeGreaterThan(0);
-        });
+        const sts = strings(reader);
 
-        // Await and execute returned function of processor
-        await (await readFolder("./tests", writeStream))();
+        const proc = new ReadFolder(
+            {
+                writer: writeStream,
+                folder: "./tests",
+                maxMemory: 1000,
+                pause: 0,
+            },
+            logger,
+        ) as FullProc<ReadFolder>;
+
+        await proc.init();
+
+        await Promise.all([proc.produce(), proc.transform()]);
+
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
     });
 });
 
 describe("Functional tests for the substitute RDF-Connect function", () => {
     test("Given an input text stream content is adjusted according to a given pattern", async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
-        const readStream = new SimpleStream<string>();
-        const writeStream = new SimpleStream<string>();
+        const reader = createReader();
+        const [writer, outputReader] = createWriter();
 
-        let output = "";
-        writeStream.data(data => {
-            output += data;
-        }).on("end", () => {
-            expect(output).toBe("This text should be Good Text");
+        const sts = strings(outputReader);
+
+        const proc = new Substitute(
+            {
+                reader,
+                writer,
+                regexp: false,
+                replace: "Good Text",
+                source: "{REPLACE_ME}",
+            },
+            logger,
+        ) as FullProc<Substitute>;
+
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        reader.handleMsg({
+            channel: uri,
+            data: encoder.encode("This text should be {REPLACE_ME}"),
         });
+        reader.close();
+        await Promise.all([t, proc.produce()]);
 
-        // Await and execute returned function of processor
-        substitute(readStream, writeStream, "{REPLACE_ME}", "Good Text");
-
-        await readStream.push("This text should be {REPLACE_ME}");
-        await readStream.end();
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
+        expect(msgs[0]).toBe("This text should be Good Text");
     });
 });
 
 describe("Functional tests for the environment substitute RDF-Connect function", () => {
     test("Given an input text stream, content is adjusted according to defined environment variables", async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
-        const readStream = new SimpleStream<string>();
-        const writeStream = new SimpleStream<string>();
+        const reader = createReader();
+        const [writer, outputReader] = createWriter();
 
-        let output = "";
-        writeStream.data(data => {
-            output += data;
-        }).on("end", () => {
-            expect(output).toBe("This text should be Good Text");
-        });
+        const sts = strings(outputReader);
 
         // Set environment variable
         process.env["REPLACE_ME"] = "Good Text";
 
-        // Await and execute returned function of processor
-        envsub(readStream, writeStream);
+        const proc = new Envsub(
+            {
+                reader,
+                writer,
+            },
+            logger,
+        ) as FullProc<Envsub>;
 
-        await readStream.push("This text should be ${REPLACE_ME}");
-        await readStream.end();
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        reader.handleMsg({
+            channel: uri,
+            data: encoder.encode("This text should be ${REPLACE_ME}"),
+        });
+        reader.close();
+        await Promise.all([t, proc.produce()]);
+
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
+        expect(msgs[0]).toBe("This text should be Good Text");
     });
 });
 
 describe("Functional tests for the file reader RDF-Connect function", () => {
     test("Given file name is read and pushed downstream", async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
-        const readStream = new SimpleStream<string>();
-        const writeStream = new SimpleStream<string>();
+        const reader = createReader();
+        const [writer, outputReader] = createWriter();
 
-        let output = "";
-        writeStream.data(data => {
-            output += data;
-        }).on("end", () => {
-            expect(output.startsWith("MIT License")).toBeTruthy();
-        });
+        const sts = strings(outputReader);
 
-        // Execute function of processor
-        getFileFromFolder(readStream, ".", writeStream);
+        const proc = new GetFileFromFolder(
+            {
+                reader,
+                writer,
+                folderPath: ".",
+            },
+            logger,
+        ) as FullProc<GetFileFromFolder>;
 
-        await readStream.push("LICENSE");
-        await readStream.end();
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        reader.handleMsg({ channel: uri, data: encoder.encode("LICENSE") });
+        reader.close();
+
+        await Promise.all([t, proc.produce()]);
+
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
+        expect(msgs[0].startsWith("MIT License")).toBeTruthy();
     });
 });
 
 describe("Functional tests for the unzip file RDF-Connect function", () => {
     test("Given zipped file is unzipped and streamed out", async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
-        const readStream = new SimpleStream<Buffer>();
-        const writeStream = new SimpleStream<string>();
+        const reader = createReader();
+        const [writer, outputReader] = createWriter();
 
-        writeStream.data(data => {
-            expect(data.includes("<RINFData>")).toBeTruthy();
+        const sts = strings(outputReader);
+
+        const proc = new UnzipFile(
+            {
+                reader,
+                writer,
+            },
+            logger,
+        ) as FullProc<UnzipFile>;
+
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        reader.handleMsg({
+            channel: uri,
+            data: await readFile("tests/test.zip"),
         });
+        reader.close();
 
-        // Execute function of processor
-        unzipFile(readStream, writeStream);
+        await Promise.all([t, proc.produce()]);
 
-        await readStream.push(await readFile("tests/test.zip"));
-        await readStream.end();
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
+        expect(msgs[0].includes("<RINFData>")).toBeTruthy();
     });
 });
 
 describe("Functional tests for the gunzip file RDF-Connect function", () => {
     test("Given gzipped file is gunzipped and streamed out", async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
-        const readStream = new SimpleStream<Buffer>();
-        const writeStream = new SimpleStream<string>();
+        const reader = createReader();
+        const [writer, outputReader] = createWriter();
 
-        writeStream.data(data => {
-            expect(data.includes("<RINFData>")).toBeTruthy();
+        const sts = strings(outputReader);
+
+        const proc = new GunzipFile(
+            {
+                reader,
+                writer,
+            },
+            logger,
+        ) as FullProc<GunzipFile>;
+
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        reader.handleMsg({
+            channel: uri,
+            data: await readFile("tests/test.gz"),
         });
+        reader.close();
 
-        // Execute function of processor
-        gunzipFile(readStream, writeStream);
+        await Promise.all([t, proc.produce()]);
 
-        await readStream.push(await readFile("tests/test.gz"));
-        await readStream.end();
+        const msgs = await sts;
+        expect(msgs.length).toBeGreaterThan(0);
+        expect(msgs[0].includes("<RINFData>")).toBeTruthy();
     });
 });
