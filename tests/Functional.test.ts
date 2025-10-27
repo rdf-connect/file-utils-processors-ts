@@ -9,18 +9,20 @@ import {
     Substitute,
     UnzipFile,
 } from "../src/FileUtils";
-import {
-    createWriter,
-    createReader,
-    uri,
-    logger,
-} from "@rdfc/js-runner/lib/testUtils";
-import { FullProc, ReaderInstance } from "@rdfc/js-runner";
+import { FullProc, Reader, ReaderInstance } from "@rdfc/js-runner";
+import { channel, createRunner } from "@rdfc/js-runner/lib/testUtils";
+import { createLogger, transports } from "winston";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-async function strings(reader: ReaderInstance) {
+const logger = createLogger({
+    transports: new transports.Console({
+        level: process.env["DEBUG"] || "info",
+    }),
+});
+
+async function strings(reader: Reader) {
     const out: string[] = [];
 
     for await (const st of reader.strings()) {
@@ -34,7 +36,8 @@ describe("Functional tests for the globRead RDF-Connect function", () => {
     test("Given a glob pattern files are read and streamed out", async () => {
         expect.assertions(1);
 
-        const [writeStream, reader] = createWriter();
+        const runner = createRunner();
+        const [writeStream, reader] = channel(runner, "input");
 
         const sts = strings(reader);
 
@@ -62,7 +65,8 @@ describe("Functional tests for the readFolder RDF-Connect function", () => {
     test("Given a folder path files are read and streamed out", async () => {
         expect.assertions(1);
 
-        const [writeStream, reader] = createWriter();
+        const runner = createRunner();
+        const [writeStream, reader] = channel(runner, "input");
 
         const sts = strings(reader);
 
@@ -89,8 +93,9 @@ describe("Functional tests for the substitute RDF-Connect function", () => {
     test("Given an input text stream content is adjusted according to a given pattern", async () => {
         expect.assertions(2);
 
-        const reader = createReader();
-        const [writer, outputReader] = createWriter();
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const [writer, outputReader] = channel(runner, "output");
 
         const sts = strings(outputReader);
 
@@ -108,11 +113,8 @@ describe("Functional tests for the substitute RDF-Connect function", () => {
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        reader.handleMsg({
-            channel: uri,
-            data: encoder.encode("This text should be {REPLACE_ME}"),
-        });
-        reader.close();
+        inputWriter.string("This text should be {REPLACE_ME}");
+        inputWriter.close();
         await Promise.all([t, proc.produce()]);
 
         const msgs = await sts;
@@ -125,8 +127,9 @@ describe("Functional tests for the environment substitute RDF-Connect function",
     test("Given an input text stream, content is adjusted according to defined environment variables", async () => {
         expect.assertions(2);
 
-        const reader = createReader();
-        const [writer, outputReader] = createWriter();
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const [writer, outputReader] = channel(runner, "output");
 
         const sts = strings(outputReader);
 
@@ -144,11 +147,8 @@ describe("Functional tests for the environment substitute RDF-Connect function",
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        reader.handleMsg({
-            channel: uri,
-            data: encoder.encode("This text should be ${REPLACE_ME}"),
-        });
-        reader.close();
+        inputWriter.string("This text should be ${REPLACE_ME}");
+        inputWriter.close();
         await Promise.all([t, proc.produce()]);
 
         const msgs = await sts;
@@ -161,8 +161,9 @@ describe("Functional tests for the file reader RDF-Connect function", () => {
     test("Given file name is read and pushed downstream", async () => {
         expect.assertions(2);
 
-        const reader = createReader();
-        const [writer, outputReader] = createWriter();
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const [writer, outputReader] = channel(runner, "output");
 
         const sts = strings(outputReader);
 
@@ -178,8 +179,9 @@ describe("Functional tests for the file reader RDF-Connect function", () => {
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        reader.handleMsg({ channel: uri, data: encoder.encode("LICENSE") });
-        reader.close();
+
+        inputWriter.string("LICENSE");
+        inputWriter.close();
 
         await Promise.all([t, proc.produce()]);
 
@@ -193,8 +195,9 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
     test("Given zipped file is unzipped and streamed out", async () => {
         expect.assertions(2);
 
-        const reader = createReader();
-        const [writer, outputReader] = createWriter();
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const [writer, outputReader] = channel(runner, "output");
 
         const sts = strings(outputReader);
 
@@ -209,11 +212,8 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        reader.handleMsg({
-            channel: uri,
-            data: await readFile("tests/test.zip"),
-        });
-        reader.close();
+        inputWriter.buffer(await readFile("tests/test.zip"));
+        inputWriter.close();
 
         await Promise.all([t, proc.produce()]);
 
@@ -227,8 +227,9 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
     test("Given gzipped file is gunzipped and streamed out", async () => {
         expect.assertions(2);
 
-        const reader = createReader();
-        const [writer, outputReader] = createWriter();
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const [writer, outputReader] = channel(runner, "output");
 
         const sts = strings(outputReader);
 
@@ -243,11 +244,8 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        reader.handleMsg({
-            channel: uri,
-            data: await readFile("tests/test.gz"),
-        });
-        reader.close();
+        inputWriter.buffer(await readFile("tests/test.gz"));
+        inputWriter.close();
 
         await Promise.all([t, proc.produce()]);
 
