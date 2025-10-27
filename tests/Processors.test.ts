@@ -1,17 +1,10 @@
-import { readFile } from "fs/promises";
 import { describe, expect, test } from "vitest";
-import { NamedNode, Parser, Term } from "n3";
-import { extractShapes, Shapes } from "rdf-lens";
 import {
     FullProc as GetMyClassT,
     Processor,
-    Runner,
     WriterInstance,
     ReaderInstance,
 } from "@rdfc/js-runner";
-import { TestClient } from "./util";
-import { createLogger, transports } from "winston";
-import { OrchestratorMessage } from "@rdfc/js-runner/lib/reexports";
 import {
     GlobRead,
     ReadFolder,
@@ -20,119 +13,32 @@ import {
     Substitute,
     GetFileFromFolder,
 } from "../src/FileUtils";
+import { resolve } from "path";
+import { ProcHelper } from "@rdfc/js-runner/lib/testUtils";
 
 describe("File Utils tests", async () => {
-    const logger = createLogger({ transports: [new transports.Console()] });
-    const baseIRI = process.cwd() + "/processors.ttl";
-    const configFile =
-        (await readFile(baseIRI, { encoding: "utf8" })) +
-        "[] a sh:NodeShape; sh:targetClass rdfc:Reader, rdfc:Writer.";
-    const configQuads = new Parser({ baseIRI: "file://" + baseIRI }).parse(
-        configFile,
-    );
-
-    const shapes = extractShapes(configQuads);
-    const base = "https://w3id.org/rdf-connect#";
-    const defined = [
-        "GlobRead",
-        "FolderRead",
-        "Substitute",
-        "Envsub",
-        "ReadFile",
-        "UnzipFile",
-        "GunzipFile",
-    ];
-
-    const shapeQuads = `
-@prefix rdfc: <https://w3id.org/rdf-connect#>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-@prefix sh: <http://www.w3.org/ns/shacl#>.
-[ ] a sh:NodeShape;
-  sh:targetClass <JsProcessorShape>;
-  sh:property [
-    sh:path rdfc:entrypoint;
-    sh:name "location";
-    sh:minCount 1;
-    sh:maxCount 1;
-    sh:datatype xsd:string;
-  ], [
-    sh:path rdfc:file;
-    sh:name "file";
-    sh:minCount 1;
-    sh:maxCount 1;
-    sh:datatype xsd:string;
-  ], [
-    sh:path rdfc:class;
-    sh:name "clazz";
-    sh:maxCount 1;
-    sh:datatype xsd:string;
-  ].
-`;
-    const processorShapes = extractShapes(new Parser().parse(shapeQuads));
-
     async function getProc<T extends Processor<unknown>>(
         config: string,
         ty: string,
         uri = "http://example.com/ns#processor",
     ): Promise<GetMyClassT<T>> {
-        const msgs: OrchestratorMessage[] = [];
-        const write = async (x: OrchestratorMessage) => {
-            msgs.push(x);
-        };
-        const runner = new Runner(
-            new TestClient(),
-            write,
-            "http://example.com/ns#",
-            logger,
+        const helper = new ProcHelper<T>();
+
+        await helper.importFile(resolve("./processors.ttl"));
+        await helper.importInline(
+            resolve("pipeline.ttl"),
+            "@prefix rdfc: <https://w3id.org/rdf-connect#>." + config,
         );
-        await runner.handleOrchMessage({ pipeline: configFile + config });
+        const definedConfig = helper.getConfig(ty);
 
-        console.log("here");
-        const procConfig = processorShapes.lenses["JsProcessorShape"].execute({
-            id: new NamedNode(base + ty),
-            quads: configQuads,
-        });
+        expect(definedConfig.location).toBeDefined();
+        expect(definedConfig.file).toBeDefined();
+        expect(definedConfig.clazz).toBeDefined();
 
-        console.log("there", procConfig);
-        const proc = await runner.addProcessor<T>({
-            config: JSON.stringify(procConfig),
-            arguments: "",
-            uri,
-        });
-        return proc;
+        const processor = await helper.getProcessor(uri);
+
+        return processor;
     }
-
-    test("Shapes are all defined", () => {
-        const names = Object.keys(shapes.lenses);
-        console.log({ names });
-        for (const n of defined) {
-            expect(names).includes(
-                base + n,
-                "Expected " + n + " to be defined.",
-            );
-        }
-
-        // PathLens, CBD, Context, TypedExtract are always defined
-        expect(
-            names.length,
-            "Unexpected name " +
-                names.filter((x) => !defined.includes(x.replace(base, ""))),
-        ).toBe(defined.length + 6);
-    });
-
-    test("Processors follow the required shape", () => {
-        for (const n of defined) {
-            const proc = <{ file: Term; location: string; clazz: string }>(
-                processorShapes.lenses["JsProcessorShape"].execute({
-                    id: new NamedNode(base + n),
-                    quads: configQuads,
-                })
-            );
-            expect(proc.file, n + " has file").toBeDefined();
-            expect(proc.location, n + " has location").toBeDefined();
-            expect(proc.clazz, n + " has clazz").toBeDefined();
-        }
-    });
 
     test("rdfc:GlobRead is properly defined", async () => {
         const proc = await getProc<GlobRead>(
@@ -149,7 +55,7 @@ describe("File Utils tests", async () => {
 
         expect(proc.globPattern).toBe("./*.json");
         expect(proc.wait).toBe(0);
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
         expect(proc.closeOnEnd).toBe(true);
         expect(proc.binary).toBe(true);
     });
@@ -167,7 +73,7 @@ describe("File Utils tests", async () => {
         expect(proc.folder).toBe("./src");
         expect(proc.maxMemory).toBe(3.5);
         expect(proc.pause).toBe(3000);
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
     });
 
     test("rdfc:Envsub is properly defined", async () => {
@@ -178,8 +84,8 @@ describe("File Utils tests", async () => {
             "Envsub",
         );
 
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
-        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
+        expect(proc.reader.constructor.name).toBe("ReaderInstance");
     });
 
     test("rdfc:Substitute is properly defined", async () => {
@@ -193,8 +99,8 @@ describe("File Utils tests", async () => {
             "Substitute",
         );
 
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
-        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
+        expect(proc.reader.constructor.name).toBe("ReaderInstance");
         expect(proc.source).toBe("life");
         expect(proc.replace).toBe("42");
         expect(proc.regexp).toBe(false);
@@ -209,8 +115,8 @@ describe("File Utils tests", async () => {
             "ReadFile",
         );
 
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
-        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
+        expect(proc.reader.constructor.name).toBe("ReaderInstance");
         expect(proc.folderPath).toBe(".");
     });
 
@@ -222,8 +128,8 @@ describe("File Utils tests", async () => {
             "UnzipFile",
         );
 
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
-        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
+        expect(proc.reader.constructor.name).toBe("ReaderInstance");
     });
 
     test("rdfc:GunzipFile is properly defined", async () => {
@@ -234,7 +140,7 @@ describe("File Utils tests", async () => {
             "GunzipFile",
         );
 
-        expect(proc.writer).toBeInstanceOf(WriterInstance);
-        expect(proc.reader).toBeInstanceOf(ReaderInstance);
+        expect(proc.writer.constructor.name).toBe("WriterInstance");
+        expect(proc.reader.constructor.name).toBe("ReaderInstance");
     });
 });
