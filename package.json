@@ -1,6 +1,6 @@
 {
     "name": "@rdfc/file-utils-processors-ts",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "File util functions to be used within the RDF-Connect ecosystem",
     "type": "module",
     "scripts": {
