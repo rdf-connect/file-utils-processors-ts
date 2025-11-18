@@ -169,6 +169,5 @@ rdfc:regexp false.
 ```turtle
 <unzipper> a rdfc:UnzipFile;
 rdfc:reader <in>;
-rdfc:writer <out>;
-rdfc:outputAsBuffer true.
+rdfc:writer <out>.
 ```
