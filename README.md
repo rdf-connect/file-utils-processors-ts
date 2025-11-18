@@ -1,6 +1,6 @@
 # file-utils-processors-ts
 
-[![Build and tests with Node.js](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml)
+[![Build and tests with Node.js](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml/badge.svg)](https://github.com/rdf-connect/file-utils-processors-ts/actions/workflows/build-test.yml) [![npm](https://img.shields.io/npm/v/@rdfc/file-utils-processors-ts.svg?style=popout)](https://npmjs.com/package/@rdfc/file-utils-processors-ts)
 
 This repository provides a set of processors for reading, transforming, and extracting files in RDF-Connect pipelines.  
 It includes utilities for reading files from folders or glob patterns, substituting strings or environment variables, reading files on demand, and handling compressed files (zip/gzip).
@@ -124,19 +124,17 @@ Unzips a compressed file and streams its content.
 
 - `rdfc:input` (`rdfc:Reader`, required): Input channel (zip file).
 - `rdfc:output` (`rdfc:Writer`, required): Output channel (extracted contents).
-- `rdfc:outputAsBuffer` (`boolean`, optional): If true, outputs raw buffers instead of strings.
 
 ---
 
 ### 🗜️ `rdfc:GunzipFile` – Gzip File Extractor
 
-Gunzip a compressed file and stream out its content.
+Gunzip a compressed file stream and stream out its content. This processor operates only in streaming mode.
 
 **Parameters:**
 
 - `rdfc:input` (`rdfc:Reader`, required): Input channel (gzip file).
 - `rdfc:output` (`rdfc:Writer`, required): Output channel (extracted contents).
-- `rdfc:outputAsBuffer` (`boolean`, optional): If true, outputs raw buffers instead of strings.
 
 ---
 
@@ -171,6 +169,5 @@ rdfc:regexp false.
 ```turtle
 <unzipper> a rdfc:UnzipFile;
 rdfc:reader <in>;
-rdfc:writer <out>;
-rdfc:outputAsBuffer true.
+rdfc:writer <out>.
 ```

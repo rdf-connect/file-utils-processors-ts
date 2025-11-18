@@ -198,12 +198,6 @@ rdfc:UnzipFile a owl:Class, rdfs:Class;
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
-  ], [
-    sh:path rdfc:outputAsBuffer;
-    sh:name "outputAsBuffer";
-    sh:datatype xsd:boolean;
-    sh:maxCount 1;
-    sh:minCount 0;
   ].
 
 rdfc:GunzipFile a owl:Class, rdfs:Class;
@@ -228,11 +222,5 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
-  ], [
-    sh:path rdfc:outputAsBuffer;
-    sh:name "outputAsBuffer";
-    sh:datatype xsd:boolean;
-    sh:maxCount 1;
-    sh:minCount 0;
   ].
 

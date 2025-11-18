@@ -9,9 +9,10 @@ import {
     Substitute,
     UnzipFile,
 } from "../src/FileUtils";
-import { FullProc, Reader, ReaderInstance } from "@rdfc/js-runner";
+import { FullProc, Reader } from "@rdfc/js-runner";
 import { channel, createRunner } from "@rdfc/js-runner/lib/testUtils";
 import { createLogger, transports } from "winston";
+import { createReadStream } from "fs";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -244,7 +245,11 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        inputWriter.buffer(await readFile("tests/test.gz"));
+        inputWriter.stream(
+            (async function* () {
+                yield* createReadStream("tests/test.gz");
+            })(),
+        );
         inputWriter.close();
 
         await Promise.all([t, proc.produce()]);
