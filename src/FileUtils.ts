@@ -1,13 +1,13 @@
 import { Processor, Reader, Writer } from "@rdfc/js-runner";
 import path from "path";
 import { memoryUsage } from "node:process";
-import { access, readdir, readFile } from "fs/promises";
+import { access, readdir, readFile, stat } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
 import * as zlib from "node:zlib";
 import { promisify } from "node:util";
-import { stat } from "node:fs/promises";
-import { createReadStream } from "node:fs";
+import { createReadStream } from "fs";
+import { Readable } from "stream";
 
 type GlobReadInp = {
     globPattern: string;
@@ -17,7 +17,7 @@ type GlobReadInp = {
     binary: boolean;
 };
 export class GlobRead extends Processor<GlobReadInp> {
-    files: Buffer<ArrayBufferLike>[] = [];
+    files: string[] = [];
 
     async init(this: GlobReadInp & this): Promise<void> {
         this.wait = this.wait ?? 0;
@@ -27,21 +27,13 @@ export class GlobRead extends Processor<GlobReadInp> {
         if (this.globPattern.startsWith("file://")) {
             this.globPattern = this.globPattern.slice("file://".length);
         }
-        const jsfiles = await glob(this.globPattern, {});
+        this.files = await glob(this.globPattern, {});
 
         this.logger.info(
-            "JsFiles " +
-                JSON.stringify(jsfiles) +
-                " from glob" +
+            "Glob results " +
+                JSON.stringify(this.files) +
+                " from glob pattern " +
                 this.globPattern,
-        );
-        this.files = await Promise.all(
-            jsfiles.map((x) => {
-                this.logger.info(
-                    `Reading file '${x}' (from glob pattern '${this.globPattern}')`,
-                );
-                return readFile(x);
-            }),
         );
     }
     async transform(this: GlobReadInp & this): Promise<void> {
@@ -49,16 +41,18 @@ export class GlobRead extends Processor<GlobReadInp> {
     }
     async produce(this: GlobReadInp & this): Promise<void> {
         for (const file of this.files) {
-            this.logger.debug("Reading and sending file " + file);
+            const size = (await stat(file)).size;
+            this.logger.info(
+                `Reading and sending file "${file}" of size ${Math.round(
+                    size / 1024,
+                )} KB`,
+            );
+
             // If it is larger then 5 mega bytes, stream it over
-            if (file.length > 5 * 1024 * 1024) {
-                await this.writer.stream(
-                    (async function* () {
-                        yield file;
-                    })(),
-                );
+            if (size > 5 * 1024 * 1024) {
+                await this.writer.stream(readFileInChunks(file));
             } else {
-                await this.writer.buffer(file);
+                await this.writer.buffer(await readFile(file));
             }
             await new Promise((res) => setTimeout(res, this.wait));
         }
@@ -263,18 +257,22 @@ export class GunzipFile extends Processor<UnzipArgs> {
         // nothing
     }
     async transform(this: UnzipArgs & this): Promise<void> {
-        const gunzip = promisify(zlib.gunzip);
-
-        for await (const data of this.reader.buffers()) {
+        for await (const stream of this.reader.streams()) {
             try {
-                const buffer = await gunzip(data);
-                this.logger.info("Unzipping received file");
-                await this.writer.buffer(buffer);
+                const readableStream = Readable.from(stream);
+                const gunzipper = zlib.createGunzip();
+                this.logger.info("Gunzipping received file");
+                await this.writer.stream(
+                    (async function* () {
+                        yield* readableStream.pipe(gunzipper);
+                    })(),
+                );
             } catch (ex) {
-                this.logger.error("Ignoring invalid ZIP file received");
+                this.logger.error("Ignoring invalid GZIP file received");
                 this.logger.debug(ex);
             }
         }
+
         await this.writer.close();
     }
     async produce(this: UnzipArgs & this): Promise<void> {
