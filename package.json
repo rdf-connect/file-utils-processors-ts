@@ -37,16 +37,16 @@
         "adm-zip": "^0.5.16",
         "glob": "^11.1.0",
         "gunzip-maybe": "^1.4.2",
-        "winston": "^3.18.3"
+        "winston": "^3.19.0"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.3",
         "@eslint/js": "^9.39.1",
         "@types/adm-zip": "^0.5.7",
         "@types/n3": "^1.26.1",
-        "@types/node": "^22.19.1",
-        "@typescript-eslint/eslint-plugin": "^8.48.1",
-        "@typescript-eslint/parser": "^8.48.1",
+        "@types/node": "^22.19.2",
+        "@typescript-eslint/eslint-plugin": "^8.49.0",
+        "@typescript-eslint/parser": "^8.49.0",
         "@vitest/coverage-v8": "^3.2.4",
         "husky": "^9.1.7",
         "eslint": "^9.39.1",
