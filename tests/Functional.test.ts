@@ -14,9 +14,6 @@ import { channel, createRunner } from "@rdfc/js-runner/lib/testUtils";
 import { createLogger, transports } from "winston";
 import { createReadStream } from "fs";
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-
 const logger = createLogger({
     transports: new transports.Console({
         level: process.env["DEBUG"] || "info",
@@ -40,6 +37,8 @@ describe("Functional tests for the globRead RDF-Connect function", () => {
         const runner = createRunner();
         const [writeStream, reader] = channel(runner, "input");
 
+        const encoder = new TextEncoder();
+        const decoder = new TextDecoder();
         const sts = strings(reader);
 
         const proc = new GlobRead(

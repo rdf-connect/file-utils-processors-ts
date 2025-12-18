@@ -1,10 +1,5 @@
 import { describe, expect, test } from "vitest";
-import {
-    FullProc as GetMyClassT,
-    Processor,
-    WriterInstance,
-    ReaderInstance,
-} from "@rdfc/js-runner";
+import { FullProc as GetMyClassT, Processor } from "@rdfc/js-runner";
 import {
     GlobRead,
     ReadFolder,

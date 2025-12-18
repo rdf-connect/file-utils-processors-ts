@@ -5,7 +5,6 @@ import { access, readdir, readFile, stat } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
 import * as zlib from "node:zlib";
-import { promisify } from "node:util";
 import { createReadStream } from "fs";
 import { Readable } from "stream";
 
