@@ -224,3 +224,36 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
     sh:minCount 1;
   ].
 
+rdfc:FileWriter a owl:Class, rdfs:Class;
+  rdfc:jsImplementationOf rdfc:Processor;
+  dc:title "JavaScript file writer processor";
+  dc:description "Writes incoming data to a file.";
+  rdfc:file <./lib/FileUtils.js>;
+  rdfc:class "FileWriter";
+  rdfc:entrypoint <./>.
+
+[ ] a sh:NodeShape;
+  sh:targetClass rdfc:FileWriter;
+  sh:property [
+    sh:path rdfc:filePath;
+    sh:name "filePath";
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+    sh:minCount 1;
+  ], [
+    sh:path rdfc:input;
+    sh:name "input";
+    sh:class rdfc:Reader;
+    sh:maxCount 1;
+    sh:minCount 1;
+  ], [
+    sh:path rdfc:readAsStream;
+    sh:name "readAsStream";
+    sh:datatype xsd:boolean;
+    sh:maxCount 1;
+  ], [
+    sh:path rdfc:binary;
+    sh:name "binary";
+    sh:datatype xsd:boolean;
+    sh:maxCount 1;
+  ].

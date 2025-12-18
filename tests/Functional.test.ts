@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { readFile } from "fs/promises";
+import { readFile, unlink } from "fs/promises";
 import {
     Envsub,
+    FileWriter,
     GetFileFromFolder,
     GlobRead,
     GunzipFile,
@@ -13,9 +14,6 @@ import { FullProc, Reader } from "@rdfc/js-runner";
 import { channel, createRunner } from "@rdfc/js-runner/lib/testUtils";
 import { createLogger, transports } from "winston";
 import { createReadStream } from "fs";
-
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
 const logger = createLogger({
     transports: new transports.Console({
@@ -213,7 +211,7 @@ describe("Functional tests for the unzip file RDF-Connect function", () => {
         await proc.init();
         const t = proc.transform();
         await Promise.resolve();
-        inputWriter.buffer(await readFile("tests/test.zip"));
+        inputWriter.buffer(await readFile("tests/data/test.zip"));
         inputWriter.close();
 
         await Promise.all([t, proc.produce()]);
@@ -247,7 +245,7 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
         await Promise.resolve();
         inputWriter.stream(
             (async function* () {
-                yield* createReadStream("tests/test.gz");
+                yield* createReadStream("tests/data/test.gz");
             })(),
         );
         inputWriter.close();
@@ -257,5 +255,93 @@ describe("Functional tests for the gunzip file RDF-Connect function", () => {
         const msgs = await sts;
         expect(msgs.length).toBeGreaterThan(0);
         expect(msgs[0].includes("<RINFData>")).toBeTruthy();
+    });
+});
+
+describe("Functional tests for the FileWriter processor function", () => {
+    test("FileWriter writes input string to file", async () => {
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const proc = new FileWriter(
+            {
+                input: reader,
+                filePath: "./output.txt",
+            },
+            logger,
+        ) as FullProc<FileWriter>;
+
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        inputWriter.string("This is a test string.");
+        inputWriter.close();
+        await Promise.all([t, proc.produce()]);
+
+        const fileContent = await readFile("./output.txt", {
+            encoding: "utf-8",
+        });
+        expect(fileContent).toBe("This is a test string.");
+
+        // Clean up
+        await unlink("./output.txt");
+    });
+
+    test("FileWriter writes input binary to file", async () => {
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const proc = new FileWriter(
+            {
+                input: reader,
+                filePath: "./output.bin",
+                binary: true,
+            },
+            logger,
+        ) as FullProc<FileWriter>;
+
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        const binaryData = new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        inputWriter.buffer(binaryData);
+        inputWriter.close();
+        await Promise.all([t, proc.produce()]);
+
+        const fileContent = await readFile("./output.bin");
+        expect(new Uint8Array(fileContent)).toEqual(binaryData);
+
+        // Clean up
+        await unlink("./output.bin");
+    });
+
+    test("FileWriter writes input stream to file", async () => {
+        const runner = createRunner();
+        const [inputWriter, reader] = channel(runner, "input");
+        const proc = new FileWriter(
+            {
+                input: reader,
+                filePath: "./output_stream.txt",
+                readAsStream: true,
+            },
+            logger,
+        ) as FullProc<FileWriter>;
+
+        await proc.init();
+        const t = proc.transform();
+        await Promise.resolve();
+        inputWriter.stream(
+            (async function* () {
+                yield* createReadStream("tests/data/test.txt");
+            })(),
+        );
+        inputWriter.close();
+        await Promise.all([t, proc.produce()]);
+
+        const fileContent = await readFile("./output_stream.txt", {
+            encoding: "utf-8",
+        });
+        expect(fileContent).toBe("This is a test file");
+
+        // Clean up
+        await unlink("./output_stream.txt");
     });
 });
