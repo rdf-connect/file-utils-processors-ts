@@ -138,6 +138,41 @@ Gunzip a compressed file stream and stream out its content. This processor opera
 
 ---
 
+### 📝 `rdfc:FileWriter` – JavaScript File Writer
+
+Writes incoming data to a file. Supports writing buffered strings, binary buffers, or streaming input.
+
+**Parameters:**
+
+- `rdfc:input` (`rdfc:Reader`, required): Input channel providing data to write. Can be strings, buffers, or streams depending on configuration.
+- `rdfc:filePath` (`string`, required): Destination file path where data will be written.
+- `rdfc:readAsStream` (`boolean`, optional): If true, consume the inputs as streams and pipe them to the destination file. Use this for large files or streaming data.
+- `rdfc:binary` (`boolean`, optional): If true, treat incoming messages as binary buffers and write them as binary data. When false or omitted, input strings will be written as UTF-8 text.
+
+Notes:
+
+- When `readAsStream` is true, the processor opens a single write stream to the specified `filePath` and writes chunks from every incoming stream into that same file handle. The stream is opened once (which will truncate/overwrite the file at open time) and is ended after all incoming streams have been consumed. This effectively concatenates multiple incoming streams into a single file.
+- When `readAsStream` is false (the default), each incoming message (string or buffer) is appended to the target file using Node.js `appendFile`, so messages are concatenated in the order they arrive. The file will be created if it doesn't exist. If you need to overwrite the file instead, either truncate it before use or use streaming mode (which opens/truncates the file once at start).
+
+Example (streaming mode):
+
+```turtle
+<writer> a rdfc:FileWriter;
+    rdfc:input <in>;
+    rdfc:filePath "./out/output.txt";
+    rdfc:readAsStream true.
+```
+
+Example (buffered text mode):
+
+```turtle
+<writer> a rdfc:FileWriter;
+    rdfc:input <in>;
+    rdfc:filePath "./out/output.txt";
+    rdfc:readAsStream false;
+    rdfc:binary false.
+```
+
 ## Example Pipelines
 
 ### Example 1: Reading all `.txt` files in a folder and logging them

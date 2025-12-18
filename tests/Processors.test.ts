@@ -7,6 +7,7 @@ import {
     Envsub,
     Substitute,
     GetFileFromFolder,
+    FileWriter,
 } from "../src/FileUtils";
 import { resolve } from "path";
 import { ProcHelper } from "@rdfc/js-runner/lib/testUtils";
@@ -137,5 +138,21 @@ describe("File Utils tests", async () => {
 
         expect(proc.writer.constructor.name).toBe("WriterInstance");
         expect(proc.reader.constructor.name).toBe("ReaderInstance");
+    });
+
+    test("rdfc:FileWriter is properly defined", async () => {
+        const proc = await getProc<FileWriter>(
+            `<http://example.com/ns#processor> a rdfc:FileWriter; 
+                rdfc:filePath "./output.txt";
+                rdfc:input <jr>;
+                rdfc:readAsStream true;
+                rdfc:binary false.`,
+            "FileWriter",
+        );
+
+        expect(proc.filePath).toBe("./output.txt");
+        expect(proc.readAsStream).toBe(true);
+        expect(proc.binary).toBe(false);
+        expect(proc.input.constructor.name).toBe("ReaderInstance");
     });
 });

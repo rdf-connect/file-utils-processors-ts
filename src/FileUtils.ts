@@ -1,11 +1,11 @@
 import { Processor, Reader, Writer } from "@rdfc/js-runner";
 import path from "path";
 import { memoryUsage } from "node:process";
-import { access, readdir, readFile, stat } from "fs/promises";
+import { access, readdir, readFile, stat, appendFile } from "fs/promises";
 import { glob } from "glob";
 import AdmZip from "adm-zip";
 import * as zlib from "node:zlib";
-import { createReadStream } from "fs";
+import { createReadStream, createWriteStream } from "fs";
 import { Readable } from "stream";
 
 type GlobReadInp = {
@@ -103,6 +103,12 @@ export class ReadFolder extends Processor<ReadFolderArg> {
     }
     async produce(this: ReadFolderArg & this): Promise<void> {
         for (const fileName of this.fileNames) {
+            const fullPath = path.join(this.normalizedPath, fileName);
+            const stats = await stat(fullPath);
+            // Skip directories
+            if (!stats.isFile()) {
+                continue;
+            }
             // Monitor process memory to avoid high-water memory crashes
             this.logger.info(`[readFolder] processing '${fileName}'`);
             if (memoryUsage().heapUsed > this.maxMemory * 1024 * 1024 * 1024) {
@@ -111,8 +117,6 @@ export class ReadFolder extends Processor<ReadFolderArg> {
                 );
                 await sleep(this.pause);
             }
-
-            const stats = await stat(path.join(this.normalizedPath));
 
             if (stats.size > 5 * 1024 * 1024) {
                 await this.writer.stream(
@@ -275,6 +279,45 @@ export class GunzipFile extends Processor<UnzipArgs> {
         await this.writer.close();
     }
     async produce(this: UnzipArgs & this): Promise<void> {
+        // nothing
+    }
+}
+
+type FileWriterArgs = {
+    input: Reader;
+    filePath: string;
+    readAsStream?: boolean;
+    binary?: boolean;
+};
+
+export class FileWriter extends Processor<FileWriterArgs> {
+    async init(this: FileWriterArgs & this): Promise<void> {
+        // nothing
+    }
+
+    async transform(this: FileWriterArgs & this): Promise<void> {
+        if (this.readAsStream) {
+            const diskWriter = createWriteStream(path.normalize(this.filePath));
+            for await (const stream of this.input.streams()) {
+                for await (const chunk of stream) {
+                    diskWriter.write(chunk);
+                }
+            }
+            diskWriter.end();
+        } else {
+            if (this.binary) {
+                for await (const dump of this.input.buffers()) {
+                    await appendFile(path.normalize(this.filePath), dump);
+                }
+            } else {
+                for await (const dump of this.input.strings()) {
+                    await appendFile(path.normalize(this.filePath), dump);
+                }
+            }
+        }
+    }
+
+    async produce(this: FileWriterArgs & this): Promise<void> {
         // nothing
     }
 }
