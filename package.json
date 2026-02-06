@@ -35,7 +35,7 @@
     "dependencies": {
         "@rdfc/js-runner": "^3.0.2",
         "adm-zip": "^0.5.16",
-        "glob": "^13.0.0",
+        "glob": "^13.0.1",
         "gunzip-maybe": "^1.4.2",
         "winston": "^3.19.0"
     },
