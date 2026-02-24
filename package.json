@@ -35,16 +35,16 @@
     "dependencies": {
         "@rdfc/js-runner": "^3.0.2",
         "adm-zip": "^0.5.16",
-        "glob": "^13.0.5",
+        "glob": "^13.0.6",
         "gunzip-maybe": "^1.4.2",
         "winston": "^3.19.0"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.3",
-        "@eslint/js": "^9.39.2",
+        "@eslint/js": "^9.39.3",
         "@types/adm-zip": "^0.5.7",
         "@types/n3": "^1.26.1",
-        "@types/node": "^25.2.3",
+        "@types/node": "^25.3.0",
         "@typescript-eslint/eslint-plugin": "^8.56.0",
         "@typescript-eslint/parser": "^8.56.0",
         "@vitest/coverage-v8": "^4.0.18",
