@@ -60,9 +60,9 @@ Reads all files matching a given glob pattern.
 
 - `rdfc:glob` (`string`, required): Glob pattern to select files.
 - `rdfc:output` (`rdfc:Writer`, required): Output channel to stream file contents.
-- `rdfc:wait` (`integer`, optional): Delay (ms) before reading files.
-- `rdfc:closeOnEnd` (`boolean`, optional): Whether to close the stream after finishing.
-- `rdfc:binary` (`boolean`, optional): If true, streams binary data instead of text.
+- `rdfc:wait` (`integer`, optional, default `0`): Delay (ms) before reading files.
+- `rdfc:closeOnEnd` (`boolean`, optional, default `true`): Whether to close the stream after finishing.
+- `rdfc:binary` (`boolean`, optional, default `false`): If true, streams binary data instead of text.
 
 ---
 
@@ -74,8 +74,8 @@ Reads all files inside a folder.
 
 - `rdfc:folder_location` (`string`, required): Path to the folder.
 - `rdfc:file_stream` (`rdfc:Writer`, required): Output channel to stream file contents.
-- `rdfc:max_memory` (`double`, optional): Max memory usage allowed (in MB).
-- `rdfc:pause` (`integer`, optional): Pause duration (ms) between file reads.
+- `rdfc:max_memory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
+- `rdfc:pause` (`integer`, optional, default `5000`): Pause duration (ms) between file reads.
 
 ---
 
@@ -89,7 +89,7 @@ Performs string substitution (supports regex) on messages in the stream.
 - `rdfc:output` (`rdfc:Writer`, required): Output channel.
 - `rdfc:source` (`string`, required): Source string or regex to match.
 - `rdfc:replace` (`string`, required): Replacement string.
-- `rdfc:regexp` (`boolean`, optional): If true, treat `source` as a regex.
+- `rdfc:regexp` (`boolean`, optional, default `false`): If true, treat `source` as a regex.
 
 ---
 
@@ -146,8 +146,8 @@ Writes incoming data to a file. Supports writing buffered strings, binary buffer
 
 - `rdfc:input` (`rdfc:Reader`, required): Input channel providing data to write. Can be strings, buffers, or streams depending on configuration.
 - `rdfc:filePath` (`string`, required): Destination file path where data will be written.
-- `rdfc:readAsStream` (`boolean`, optional): If true, consume the inputs as streams and pipe them to the destination file. Use this for large files or streaming data.
-- `rdfc:binary` (`boolean`, optional): If true, treat incoming messages as binary buffers and write them as binary data. When false or omitted, input strings will be written as UTF-8 text.
+- `rdfc:readAsStream` (`boolean`, optional, default `false`): If true, consume the inputs as streams and pipe them to the destination file. Use this for large files or streaming data.
+- `rdfc:binary` (`boolean`, optional, default `false`): If true, treat incoming messages as binary buffers and write them as binary data. When false or omitted, input strings will be written as UTF-8 text.
 
 Notes:
 

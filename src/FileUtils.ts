@@ -19,10 +19,6 @@ export class GlobRead extends Processor<GlobReadInp> {
     files: string[] = [];
 
     async init(this: GlobReadInp & this): Promise<void> {
-        this.wait = this.wait ?? 0;
-        this.closeOnEnd = this.closeOnEnd ?? true;
-        this.binary = this.binary ?? false;
-
         if (this.globPattern.startsWith("file://")) {
             this.globPattern = this.globPattern.slice("file://".length);
         }
@@ -84,9 +80,6 @@ export class ReadFolder extends Processor<ReadFolderArg> {
     fileNames: string[];
     normalizedPath: string;
     async init(this: ReadFolderArg & this): Promise<void> {
-        this.maxMemory = this.maxMemory ?? 3;
-        this.pause = this.pause ?? 5000;
-
         this.normalizedPath = path.normalize(this.folder);
 
         // Check folder exists
@@ -286,8 +279,8 @@ export class GunzipFile extends Processor<UnzipArgs> {
 type FileWriterArgs = {
     input: Reader;
     filePath: string;
-    readAsStream?: boolean;
-    binary?: boolean;
+    readAsStream: boolean;
+    binary: boolean;
 };
 
 export class FileWriter extends Processor<FileWriterArgs> {

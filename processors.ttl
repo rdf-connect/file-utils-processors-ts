@@ -34,16 +34,19 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
     sh:path rdfc:wait;
     sh:name "wait";
     sh:datatype xsd:integer;
+    sh:defaultValue 0;
     sh:maxCount 1;
   ], [
     sh:path rdfc:closeOnEnd;
     sh:name "closeOnEnd";
     sh:datatype xsd:boolean;
+    sh:defaultValue true;
     sh:maxCount 1;
   ], [
     sh:path rdfc:binary;
     sh:name "binary";
     sh:datatype xsd:boolean;
+    sh:defaultValue false;
     sh:maxCount 1;
   ].
 
@@ -73,11 +76,13 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
     sh:path rdfc:max_memory;
     sh:name "maxMemory";
     sh:datatype xsd:double;
+    sh:defaultValue 3.0;
     sh:maxCount 1;
   ], [
     sh:path rdfc:pause;
     sh:name "pause";
     sh:datatype xsd:integer;
+    sh:defaultValue 5000;
     sh:maxCount 1;
   ].
 
@@ -119,6 +124,7 @@ rdfc:Substitute a owl:Class, rdfs:Class;
     sh:path rdfc:regexp;
     sh:name "regexp";
     sh:datatype xsd:boolean;
+    sh:defaultValue false;
     sh:maxCount 1;
   ].
 
@@ -250,10 +256,12 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
     sh:path rdfc:readAsStream;
     sh:name "readAsStream";
     sh:datatype xsd:boolean;
+    sh:defaultValue false;
     sh:maxCount 1;
   ], [
     sh:path rdfc:binary;
     sh:name "binary";
     sh:datatype xsd:boolean;
+    sh:defaultValue false;
     sh:maxCount 1;
   ].
