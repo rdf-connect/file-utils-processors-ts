@@ -58,7 +58,7 @@ Reads all files matching a given glob pattern.
 
 **Parameters:**
 
-- `rdfc:glob` (`string`, required): Glob pattern to select files.
+- `rdfc:glob` (`string` or IRI, required): Glob pattern to select files.
 - `rdfc:output` (`rdfc:Writer`, required): Output channel to stream file contents.
 - `rdfc:wait` (`integer`, optional, default `0`): Delay (ms) before reading files.
 - `rdfc:closeOnEnd` (`boolean`, optional, default `true`): Whether to close the stream after finishing.
@@ -72,7 +72,7 @@ Reads all files inside a folder.
 
 **Parameters:**
 
-- `rdfc:folder_location` (`string`, required): Path to the folder.
+- `rdfc:folder_location` (`string` or IRI, required): Path to the folder.
 - `rdfc:file_stream` (`rdfc:Writer`, required): Output channel to stream file contents.
 - `rdfc:max_memory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
 - `rdfc:pause` (`integer`, optional, default `5000`): Pause duration (ms) between file reads.
@@ -111,7 +111,7 @@ Reads a requested file from a given folder.
 **Parameters:**
 
 - `rdfc:input` (`rdfc:Reader`, required): Input channel (file requests).
-- `rdfc:folderPath` (`string`, required): Path to the folder containing files.
+- `rdfc:folderPath` (`string` or IRI, required): Path to the folder containing files.
 - `rdfc:output` (`rdfc:Writer`, required): Output channel for file contents.
 
 ---
@@ -145,7 +145,7 @@ Writes incoming data to a file. Supports writing buffered strings, binary buffer
 **Parameters:**
 
 - `rdfc:input` (`rdfc:Reader`, required): Input channel providing data to write. Can be strings, buffers, or streams depending on configuration.
-- `rdfc:filePath` (`string`, required): Destination file path where data will be written.
+- `rdfc:filePath` (`string` or IRI, required): Destination file path where data will be written.
 - `rdfc:readAsStream` (`boolean`, optional, default `false`): If true, consume the inputs as streams and pipe them to the destination file. Use this for large files or streaming data.
 - `rdfc:binary` (`boolean`, optional, default `false`): If true, treat incoming messages as binary buffers and write them as binary data. When false or omitted, input strings will be written as UTF-8 text.
 

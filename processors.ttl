@@ -21,7 +21,8 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
   sh:property [
     sh:path rdfc:glob;
     sh:name "globPattern";
-    sh:datatype xsd:string;
+    sh:nodeKind sh:IRIOrLiteral;
+    sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
@@ -63,7 +64,8 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
   sh:property [
     sh:path rdfc:folder_location;
     sh:name "folder";
-    sh:datatype xsd:string;
+    sh:nodeKind sh:IRIOrLiteral;
+    sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
@@ -171,7 +173,8 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
   ], [
     sh:path rdfc:folderPath;
     sh:name "folderPath";
-    sh:datatype xsd:string;
+    sh:nodeKind sh:IRIOrLiteral;
+    sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
@@ -243,7 +246,8 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
   sh:property [
     sh:path rdfc:filePath;
     sh:name "filePath";
-    sh:datatype xsd:string;
+    sh:nodeKind sh:IRIOrLiteral;
+    sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
