@@ -155,4 +155,54 @@ describe("File Utils tests", async () => {
         expect(proc.binary).toBe(false);
         expect(proc.input.constructor.name).toBe("ReaderInstance");
     });
+
+    test("rdfc:GlobRead falls back to its default values", async () => {
+        const proc = await getProc<GlobRead>(
+            `<http://example.com/ns#processor> a rdfc:GlobRead;
+                rdfc:glob "./*.json";
+                rdfc:output <jw>.`,
+            "GlobRead",
+        );
+
+        expect(proc.wait).toBe(0);
+        expect(proc.closeOnEnd).toBe(true);
+        expect(proc.binary).toBe(false);
+    });
+
+    test("rdfc:FolderRead falls back to its default values", async () => {
+        const proc = await getProc<ReadFolder>(
+            `<http://example.com/ns#processor> a rdfc:FolderRead;
+                rdfc:folder_location "./src";
+                rdfc:file_stream <jw>.`,
+            "FolderRead",
+        );
+
+        expect(proc.maxMemory).toBe(3);
+        expect(proc.pause).toBe(5000);
+    });
+
+    test("rdfc:Substitute falls back to its default values", async () => {
+        const proc = await getProc<Substitute>(
+            `<http://example.com/ns#processor> a rdfc:Substitute;
+                rdfc:input <jr>;
+                rdfc:output <jw>;
+                rdfc:source "life";
+                rdfc:replace "42".`,
+            "Substitute",
+        );
+
+        expect(proc.regexp).toBe(false);
+    });
+
+    test("rdfc:FileWriter falls back to its default values", async () => {
+        const proc = await getProc<FileWriter>(
+            `<http://example.com/ns#processor> a rdfc:FileWriter;
+                rdfc:filePath "./output.txt";
+                rdfc:input <jr>.`,
+            "FileWriter",
+        );
+
+        expect(proc.readAsStream).toBe(false);
+        expect(proc.binary).toBe(false);
+    });
 });
