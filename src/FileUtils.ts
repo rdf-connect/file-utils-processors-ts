@@ -7,15 +7,7 @@ import AdmZip from "adm-zip";
 import * as zlib from "node:zlib";
 import { createReadStream, createWriteStream } from "fs";
 import { Readable } from "stream";
-import { fileURLToPath } from "url";
-
-/**
- * A location can be written as an IRI in the pipeline, which reaches the
- * processor as a `file:` URL: turn that into a path, keep anything else.
- */
-export function toPath(location: string): string {
-    return location.startsWith("file:") ? fileURLToPath(location) : location;
-}
+import { toPath } from "@rdfc/utils-js";
 
 type GlobReadInp = {
     globPattern: string;

@@ -8,10 +8,10 @@ import {
     Substitute,
     GetFileFromFolder,
     FileWriter,
-    toPath,
 } from "../src/FileUtils";
 import { resolve } from "path";
 import { ProcHelper } from "@rdfc/js-runner/lib/testUtils";
+import { toPath } from "@rdfc/utils-js";
 
 describe("File Utils tests", async () => {
     async function getProc<T extends Processor<unknown>>(
@@ -242,13 +242,5 @@ describe("File Utils tests", async () => {
             "FileWriter",
         );
         expect(toPath(writer.filePath)).toBe(resolve("./output.txt"));
-    });
-
-    test("toPath keeps paths and turns file: URLs into paths", () => {
-        expect(toPath("./data/*.ttl")).toBe("./data/*.ttl");
-        expect(toPath("/tmp/out.txt")).toBe("/tmp/out.txt");
-        expect(toPath("file:///tmp/my%20data/out.txt")).toBe(
-            "/tmp/my data/out.txt",
-        );
     });
 });
