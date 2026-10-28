@@ -266,6 +266,8 @@ describe("Functional tests for the FileWriter processor function", () => {
             {
                 input: reader,
                 filePath: "./output.txt",
+                readAsStream: false,
+                binary: false,
             },
             logger,
         ) as FullProc<FileWriter>;
@@ -293,6 +295,7 @@ describe("Functional tests for the FileWriter processor function", () => {
             {
                 input: reader,
                 filePath: "./output.bin",
+                readAsStream: false,
                 binary: true,
             },
             logger,
@@ -321,6 +324,7 @@ describe("Functional tests for the FileWriter processor function", () => {
                 input: reader,
                 filePath: "./output_stream.txt",
                 readAsStream: true,
+                binary: false,
             },
             logger,
         ) as FullProc<FileWriter>;
