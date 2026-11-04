@@ -7,6 +7,7 @@ import AdmZip from "adm-zip";
 import * as zlib from "node:zlib";
 import { createReadStream, createWriteStream } from "fs";
 import { Readable } from "stream";
+import { toPath } from "@rdfc/utils-js";
 
 type GlobReadInp = {
     globPattern: string;
@@ -19,13 +20,7 @@ export class GlobRead extends Processor<GlobReadInp> {
     files: string[] = [];
 
     async init(this: GlobReadInp & this): Promise<void> {
-        this.wait = this.wait ?? 0;
-        this.closeOnEnd = this.closeOnEnd ?? true;
-        this.binary = this.binary ?? false;
-
-        if (this.globPattern.startsWith("file://")) {
-            this.globPattern = this.globPattern.slice("file://".length);
-        }
+        this.globPattern = toPath(this.globPattern);
         this.files = await glob(this.globPattern, {});
 
         this.logger.info(
@@ -84,10 +79,7 @@ export class ReadFolder extends Processor<ReadFolderArg> {
     fileNames: string[];
     normalizedPath: string;
     async init(this: ReadFolderArg & this): Promise<void> {
-        this.maxMemory = this.maxMemory ?? 3;
-        this.pause = this.pause ?? 5000;
-
-        this.normalizedPath = path.normalize(this.folder);
+        this.normalizedPath = path.normalize(toPath(this.folder));
 
         // Check folder exists
         await access(this.normalizedPath);
@@ -207,7 +199,10 @@ export class GetFileFromFolder extends Processor<GetFileFromFolderArgs> {
     }
     async transform(this: GetFileFromFolderArgs & this): Promise<void> {
         for await (const name of this.reader.strings()) {
-            const filePath = path.join(path.resolve(this.folderPath), name);
+            const filePath = path.join(
+                path.resolve(toPath(this.folderPath)),
+                name,
+            );
             this.logger.info(`Reading file at '${filePath}'`);
             const f = await stat(filePath);
             if (f.size > 5 * 1024 * 1024) {
@@ -286,8 +281,8 @@ export class GunzipFile extends Processor<UnzipArgs> {
 type FileWriterArgs = {
     input: Reader;
     filePath: string;
-    readAsStream?: boolean;
-    binary?: boolean;
+    readAsStream: boolean;
+    binary: boolean;
 };
 
 export class FileWriter extends Processor<FileWriterArgs> {
@@ -297,7 +292,9 @@ export class FileWriter extends Processor<FileWriterArgs> {
 
     async transform(this: FileWriterArgs & this): Promise<void> {
         if (this.readAsStream) {
-            const diskWriter = createWriteStream(path.normalize(this.filePath));
+            const diskWriter = createWriteStream(
+                path.normalize(toPath(this.filePath)),
+            );
             for await (const stream of this.input.streams()) {
                 for await (const chunk of stream) {
                     diskWriter.write(chunk);
@@ -307,11 +304,17 @@ export class FileWriter extends Processor<FileWriterArgs> {
         } else {
             if (this.binary) {
                 for await (const dump of this.input.buffers()) {
-                    await appendFile(path.normalize(this.filePath), dump);
+                    await appendFile(
+                        path.normalize(toPath(this.filePath)),
+                        dump,
+                    );
                 }
             } else {
                 for await (const dump of this.input.strings()) {
-                    await appendFile(path.normalize(this.filePath), dump);
+                    await appendFile(
+                        path.normalize(toPath(this.filePath)),
+                        dump,
+                    );
                 }
             }
         }
