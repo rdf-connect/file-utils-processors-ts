@@ -3,11 +3,10 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
-@prefix dc: <http://purl.org/dc/terms/>.
 
 rdfc:GlobRead a owl:Class, rdfs:Class;
-  dc:title "GlobRead";
-  dc:description "Reads all files according to the Glob pattern";
+  rdfs:label "Glob Read";
+  rdfs:comment "Reads all files according to the Glob pattern";
   rdfc:jsImplementationOf rdfc:Processor;
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "GlobRead";
@@ -60,8 +59,8 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
 
 rdfc:FolderRead a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "Folder Read";
-  dc:description "Reads all files inside the folder";
+  rdfs:label "Folder Read";
+  rdfs:comment "Reads all files inside the folder";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "ReadFolder";
   rdfc:entrypoint <./>.
@@ -105,8 +104,8 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
 
 rdfc:Substitute a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "String substitute processor";
-  dc:description "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
+  rdfs:label "String substitute processor";
+  rdfs:comment "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "Substitute";
   rdfc:entrypoint <./>.
@@ -157,8 +156,8 @@ rdfc:Substitute a owl:Class, rdfs:Class;
 
 rdfc:Envsub a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "Environment substitute processor";
-  dc:description "Substitutes all declared environment variables to their respective values.";
+  rdfs:label "Environment substitute processor";
+  rdfs:comment "Substitutes all declared environment variables to their respective values.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "Envsub";
   rdfc:entrypoint <./>.
@@ -185,8 +184,8 @@ rdfc:Envsub a owl:Class, rdfs:Class;
 
 rdfc:ReadFile a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "On demand file reader processor";
-  dc:description "Reads a requested file on demand.";
+  rdfs:label "On demand file reader processor";
+  rdfs:comment "Reads a requested file on demand.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "GetFileFromFolder";
   rdfc:entrypoint <./>.
@@ -222,8 +221,8 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
 
 rdfc:UnzipFile a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "Unzip processor";
-  dc:description "Processor to unzip a compressed file and stream out its content.";
+  rdfs:label "Unzip processor";
+  rdfs:comment "Processor to unzip a compressed file and stream out its content.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "UnzipFile";
   rdfc:entrypoint <./>.
@@ -250,8 +249,8 @@ rdfc:UnzipFile a owl:Class, rdfs:Class;
 
 rdfc:GunzipFile a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "Gunzip processor";
-  dc:description "Processor to gunzip a compressed file and stream out its content.";
+  rdfs:label "Gunzip processor";
+  rdfs:comment "Processor to gunzip a compressed file and stream out its content.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "GunzipFile";
   rdfc:entrypoint <./>.
@@ -278,8 +277,8 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
 
 rdfc:FileWriter a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
-  dc:title "JavaScript file writer processor";
-  dc:description "Writes incoming data to a file.";
+  rdfs:label "JavaScript file writer processor";
+  rdfs:comment "Writes incoming data to a file.";
   rdfc:file <./lib/FileUtils.js>;
   rdfc:class "FileWriter";
   rdfc:entrypoint <./>.
