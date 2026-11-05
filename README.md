@@ -63,7 +63,6 @@ Reads all files matching a given glob pattern.
 - `rdfcp:output` (`rdfc:Writer`, required): Output channel to stream file contents.
 - `rdfcp:wait` (`integer`, optional, default `0`): Delay (ms) before reading files.
 - `rdfcp:closeOnEnd` (`boolean`, optional, default `true`): Whether to close the stream after finishing.
-- `rdfcp:binary` (`boolean`, optional, default `false`): If true, streams binary data instead of text.
 
 ---
 
