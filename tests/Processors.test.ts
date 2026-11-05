@@ -24,7 +24,8 @@ describe("File Utils tests", async () => {
         await helper.importFile(resolve("./processors.ttl"));
         await helper.importInline(
             resolve("pipeline.ttl"),
-            "@prefix rdfc: <https://w3id.org/rdf-connect#>." + config,
+            "@prefix rdfc: <https://w3id.org/rdf-connect#>. @prefix rdfcp: <https://w3id.org/rdf-connect/processors#>." +
+                config,
         );
         const definedConfig = helper.getConfig(ty);
 
@@ -37,14 +38,14 @@ describe("File Utils tests", async () => {
         return processor;
     }
 
-    test("rdfc:GlobRead is properly defined", async () => {
+    test("rdfcp:GlobRead is properly defined", async () => {
         const proc = await getProc<GlobRead>(
-            `<http://example.com/ns#processor> a rdfc:GlobRead; 
-                rdfc:glob "./*.json"; 
-                rdfc:output <jw>;
-                rdfc:wait 0;
-                rdfc:closeOnEnd true;
-                rdfc:binary true.`,
+            `<http://example.com/ns#processor> a rdfcp:GlobRead; 
+                rdfcp:glob "./*.json"; 
+                rdfcp:output <jw>;
+                rdfcp:wait 0;
+                rdfcp:closeOnEnd true;
+                rdfcp:binary true.`,
             "GlobRead",
         );
 
@@ -57,13 +58,13 @@ describe("File Utils tests", async () => {
         expect(proc.binary).toBe(true);
     });
 
-    test("rdfc:FolderRead is properly defined", async () => {
+    test("rdfcp:FolderRead is properly defined", async () => {
         const proc = await getProc<ReadFolder>(
-            `<http://example.com/ns#processor> a rdfc:FolderRead; 
-                rdfc:folder_location "./src"; 
-                rdfc:file_stream <jw>;
-                rdfc:max_memory 3.5;
-                rdfc:pause 3000.`,
+            `<http://example.com/ns#processor> a rdfcp:FolderRead; 
+                rdfcp:folderPath "./src"; 
+                rdfcp:output <jw>;
+                rdfcp:maxMemory 3.5;
+                rdfcp:pause 3000.`,
             "FolderRead",
         );
 
@@ -73,11 +74,11 @@ describe("File Utils tests", async () => {
         expect(proc.writer.constructor.name).toBe("WriterInstance");
     });
 
-    test("rdfc:Envsub is properly defined", async () => {
+    test("rdfcp:Envsub is properly defined", async () => {
         const proc = await getProc<Envsub>(
-            `<http://example.com/ns#processor> a rdfc:Envsub; 
-                rdfc:input <jr>; 
-                rdfc:output <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:Envsub; 
+                rdfcp:input <jr>; 
+                rdfcp:output <jw>.`,
             "Envsub",
         );
 
@@ -85,14 +86,14 @@ describe("File Utils tests", async () => {
         expect(proc.reader.constructor.name).toBe("ReaderInstance");
     });
 
-    test("rdfc:Substitute is properly defined", async () => {
+    test("rdfcp:Substitute is properly defined", async () => {
         const proc = await getProc<Substitute>(
-            `<http://example.com/ns#processor> a rdfc:Substitute; 
-                rdfc:input <jr>;
-                rdfc:output <jw>;
-                rdfc:source "life";
-                rdfc:replace "42";
-                rdfc:regexp false.`,
+            `<http://example.com/ns#processor> a rdfcp:Substitute; 
+                rdfcp:input <jr>;
+                rdfcp:output <jw>;
+                rdfcp:source "life";
+                rdfcp:replace "42";
+                rdfcp:regexp false.`,
             "Substitute",
         );
 
@@ -103,12 +104,12 @@ describe("File Utils tests", async () => {
         expect(proc.regexp).toBe(false);
     });
 
-    test("rdfc:ReadFile is properly defined", async () => {
+    test("rdfcp:ReadFile is properly defined", async () => {
         const proc = await getProc<GetFileFromFolder>(
-            `<http://example.com/ns#processor> a rdfc:ReadFile; 
-                rdfc:input <jr>;
-                rdfc:output <jw>;
-                rdfc:folderPath ".".`,
+            `<http://example.com/ns#processor> a rdfcp:ReadFile; 
+                rdfcp:input <jr>;
+                rdfcp:output <jw>;
+                rdfcp:folderPath ".".`,
             "ReadFile",
         );
 
@@ -117,11 +118,11 @@ describe("File Utils tests", async () => {
         expect(proc.folderPath).toBe(".");
     });
 
-    test("rdfc:UnzipFile is properly defined", async () => {
+    test("rdfcp:UnzipFile is properly defined", async () => {
         const proc = await getProc<UnzipFile>(
-            `<http://example.com/ns#processor> a rdfc:UnzipFile; 
-                rdfc:input <jr>;
-                rdfc:output <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:UnzipFile; 
+                rdfcp:input <jr>;
+                rdfcp:output <jw>.`,
             "UnzipFile",
         );
 
@@ -129,11 +130,11 @@ describe("File Utils tests", async () => {
         expect(proc.reader.constructor.name).toBe("ReaderInstance");
     });
 
-    test("rdfc:GunzipFile is properly defined", async () => {
+    test("rdfcp:GunzipFile is properly defined", async () => {
         const proc = await getProc<UnzipFile>(
-            `<http://example.com/ns#processor> a rdfc:GunzipFile; 
-                rdfc:input <jr>;
-                rdfc:output <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:GunzipFile; 
+                rdfcp:input <jr>;
+                rdfcp:output <jw>.`,
             "GunzipFile",
         );
 
@@ -141,13 +142,13 @@ describe("File Utils tests", async () => {
         expect(proc.reader.constructor.name).toBe("ReaderInstance");
     });
 
-    test("rdfc:FileWriter is properly defined", async () => {
+    test("rdfcp:FileWriter is properly defined", async () => {
         const proc = await getProc<FileWriter>(
-            `<http://example.com/ns#processor> a rdfc:FileWriter; 
-                rdfc:filePath "./output.txt";
-                rdfc:input <jr>;
-                rdfc:readAsStream true;
-                rdfc:binary false.`,
+            `<http://example.com/ns#processor> a rdfcp:FileWriter; 
+                rdfcp:filePath "./output.txt";
+                rdfcp:input <jr>;
+                rdfcp:readAsStream true;
+                rdfcp:binary false.`,
             "FileWriter",
         );
 
@@ -157,11 +158,11 @@ describe("File Utils tests", async () => {
         expect(proc.input.constructor.name).toBe("ReaderInstance");
     });
 
-    test("rdfc:GlobRead falls back to its default values", async () => {
+    test("rdfcp:GlobRead falls back to its default values", async () => {
         const proc = await getProc<GlobRead>(
-            `<http://example.com/ns#processor> a rdfc:GlobRead;
-                rdfc:glob "./*.json";
-                rdfc:output <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:GlobRead;
+                rdfcp:glob "./*.json";
+                rdfcp:output <jw>.`,
             "GlobRead",
         );
 
@@ -170,11 +171,11 @@ describe("File Utils tests", async () => {
         expect(proc.binary).toBe(false);
     });
 
-    test("rdfc:FolderRead falls back to its default values", async () => {
+    test("rdfcp:FolderRead falls back to its default values", async () => {
         const proc = await getProc<ReadFolder>(
-            `<http://example.com/ns#processor> a rdfc:FolderRead;
-                rdfc:folder_location "./src";
-                rdfc:file_stream <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:FolderRead;
+                rdfcp:folderPath "./src";
+                rdfcp:output <jw>.`,
             "FolderRead",
         );
 
@@ -182,24 +183,24 @@ describe("File Utils tests", async () => {
         expect(proc.pause).toBe(5000);
     });
 
-    test("rdfc:Substitute falls back to its default values", async () => {
+    test("rdfcp:Substitute falls back to its default values", async () => {
         const proc = await getProc<Substitute>(
-            `<http://example.com/ns#processor> a rdfc:Substitute;
-                rdfc:input <jr>;
-                rdfc:output <jw>;
-                rdfc:source "life";
-                rdfc:replace "42".`,
+            `<http://example.com/ns#processor> a rdfcp:Substitute;
+                rdfcp:input <jr>;
+                rdfcp:output <jw>;
+                rdfcp:source "life";
+                rdfcp:replace "42".`,
             "Substitute",
         );
 
         expect(proc.regexp).toBe(false);
     });
 
-    test("rdfc:FileWriter falls back to its default values", async () => {
+    test("rdfcp:FileWriter falls back to its default values", async () => {
         const proc = await getProc<FileWriter>(
-            `<http://example.com/ns#processor> a rdfc:FileWriter;
-                rdfc:filePath "./output.txt";
-                rdfc:input <jr>.`,
+            `<http://example.com/ns#processor> a rdfcp:FileWriter;
+                rdfcp:filePath "./output.txt";
+                rdfcp:input <jr>.`,
             "FileWriter",
         );
 
@@ -209,36 +210,36 @@ describe("File Utils tests", async () => {
 
     test("locations can be written as IRIs", async () => {
         const glob = await getProc<GlobRead>(
-            `<http://example.com/ns#processor> a rdfc:GlobRead;
-                rdfc:glob <./tests/data/*.txt>;
-                rdfc:output <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:GlobRead;
+                rdfcp:glob <./tests/data/*.txt>;
+                rdfcp:output <jw>.`,
             "GlobRead",
         );
         await glob.init();
         expect(glob.files).toEqual([resolve("./tests/data/test.txt")]);
 
         const folder = await getProc<ReadFolder>(
-            `<http://example.com/ns#processor> a rdfc:FolderRead;
-                rdfc:folder_location <./tests/data>;
-                rdfc:file_stream <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:FolderRead;
+                rdfcp:folderPath <./tests/data>;
+                rdfcp:output <jw>.`,
             "FolderRead",
         );
         await folder.init();
         expect(folder.normalizedPath).toBe(resolve("./tests/data"));
 
         const readFile = await getProc<GetFileFromFolder>(
-            `<http://example.com/ns#processor> a rdfc:ReadFile;
-                rdfc:input <jr>;
-                rdfc:folderPath <./tests/data>;
-                rdfc:output <jw>.`,
+            `<http://example.com/ns#processor> a rdfcp:ReadFile;
+                rdfcp:input <jr>;
+                rdfcp:folderPath <./tests/data>;
+                rdfcp:output <jw>.`,
             "ReadFile",
         );
         expect(toPath(readFile.folderPath)).toBe(resolve("./tests/data"));
 
         const writer = await getProc<FileWriter>(
-            `<http://example.com/ns#processor> a rdfc:FileWriter;
-                rdfc:filePath <./output.txt>;
-                rdfc:input <jr>.`,
+            `<http://example.com/ns#processor> a rdfcp:FileWriter;
+                rdfcp:filePath <./output.txt>;
+                rdfcp:input <jr>.`,
             "FileWriter",
         );
         expect(toPath(writer.filePath)).toBe(resolve("./output.txt"));

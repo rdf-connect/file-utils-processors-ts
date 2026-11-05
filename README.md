@@ -30,6 +30,7 @@ Next, you can add the processors to your pipeline configuration as follows:
 
 ```turtle
 @prefix rdfc: <https://w3id.org/rdf-connect#>.
+@prefix rdfcp: <https://w3id.org/rdf-connect/processors#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 
 ### Import the processor definitions
@@ -43,111 +44,111 @@ Next, you can add the processors to your pipeline configuration as follows:
 # Add the `rdfc:processor <folderReader>` statement under the `rdfc:consistsOf` statement of the `rdfc:NodeRunner`
 
 ### Define and configure the processors
-<folderReader> a rdfc:FolderRead;
-    rdfc:folder_location "./data";
-    rdfc:file_stream <out>.
+<folderReader> a rdfcp:FolderRead;
+    rdfcp:folderPath "./data";
+    rdfcp:output <out>.
 ```
 
 ---
 
 ## Processors and Configuration
 
-### 📂 `rdfc:GlobRead` – Glob-based File Reader
+### 📂 `rdfcp:GlobRead` – Glob-based File Reader
 
 Reads all files matching a given glob pattern.
 
 **Parameters:**
 
-- `rdfc:glob` (`string` or IRI, required): Glob pattern to select files.
-- `rdfc:output` (`rdfc:Writer`, required): Output channel to stream file contents.
-- `rdfc:wait` (`integer`, optional, default `0`): Delay (ms) before reading files.
-- `rdfc:closeOnEnd` (`boolean`, optional, default `true`): Whether to close the stream after finishing.
-- `rdfc:binary` (`boolean`, optional, default `false`): If true, streams binary data instead of text.
+- `rdfcp:glob` (`string` or IRI, required): Glob pattern to select files.
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel to stream file contents.
+- `rdfcp:wait` (`integer`, optional, default `0`): Delay (ms) before reading files.
+- `rdfcp:closeOnEnd` (`boolean`, optional, default `true`): Whether to close the stream after finishing.
+- `rdfcp:binary` (`boolean`, optional, default `false`): If true, streams binary data instead of text.
 
 ---
 
-### 📁 `rdfc:FolderRead` – Folder File Reader
+### 📁 `rdfcp:FolderRead` – Folder File Reader
 
 Reads all files inside a folder.
 
 **Parameters:**
 
-- `rdfc:folder_location` (`string` or IRI, required): Path to the folder.
-- `rdfc:file_stream` (`rdfc:Writer`, required): Output channel to stream file contents.
-- `rdfc:max_memory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
-- `rdfc:pause` (`integer`, optional, default `5000`): Pause duration (ms) between file reads.
+- `rdfcp:folderPath` (`string` or IRI, required): Path to the folder.
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel to stream file contents.
+- `rdfcp:maxMemory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
+- `rdfcp:pause` (`integer`, optional, default `5000`): Pause duration (ms) between file reads.
 
 ---
 
-### 🔄 `rdfc:Substitute` – String Substitution Processor
+### 🔄 `rdfcp:Substitute` – String Substitution Processor
 
 Performs string substitution (supports regex) on messages in the stream.
 
 **Parameters:**
 
-- `rdfc:input` (`rdfc:Reader`, required): Input channel.
-- `rdfc:output` (`rdfc:Writer`, required): Output channel.
-- `rdfc:source` (`string`, required): Source string or regex to match.
-- `rdfc:replace` (`string`, required): Replacement string.
-- `rdfc:regexp` (`boolean`, optional, default `false`): If true, treat `source` as a regex.
+- `rdfcp:input` (`rdfc:Reader`, required): Input channel.
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel.
+- `rdfcp:source` (`string`, required): Source string or regex to match.
+- `rdfcp:replace` (`string`, required): Replacement string.
+- `rdfcp:regexp` (`boolean`, optional, default `false`): If true, treat `source` as a regex.
 
 ---
 
-### 🌍 `rdfc:Envsub` – Environment Variable Substitution
+### 🌍 `rdfcp:Envsub` – Environment Variable Substitution
 
 Substitutes environment variables in the stream with their values.
 
 **Parameters:**
 
-- `rdfc:input` (`rdfc:Reader`, required): Input channel.
-- `rdfc:output` (`rdfc:Writer`, required): Output channel.
+- `rdfcp:input` (`rdfc:Reader`, required): Input channel.
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel.
 
 ---
 
-### 📄 `rdfc:ReadFile` – On-Demand File Reader
+### 📄 `rdfcp:ReadFile` – On-Demand File Reader
 
 Reads a requested file from a given folder.
 
 **Parameters:**
 
-- `rdfc:input` (`rdfc:Reader`, required): Input channel (file requests).
-- `rdfc:folderPath` (`string` or IRI, required): Path to the folder containing files.
-- `rdfc:output` (`rdfc:Writer`, required): Output channel for file contents.
+- `rdfcp:input` (`rdfc:Reader`, required): Input channel (file requests).
+- `rdfcp:folderPath` (`string` or IRI, required): Path to the folder containing files.
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel for file contents.
 
 ---
 
-### 📦 `rdfc:UnzipFile` – Zip File Extractor
+### 📦 `rdfcp:UnzipFile` – Zip File Extractor
 
 Unzips a compressed file and streams its content.
 
 **Parameters:**
 
-- `rdfc:input` (`rdfc:Reader`, required): Input channel (zip file).
-- `rdfc:output` (`rdfc:Writer`, required): Output channel (extracted contents).
+- `rdfcp:input` (`rdfc:Reader`, required): Input channel (zip file).
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel (extracted contents).
 
 ---
 
-### 🗜️ `rdfc:GunzipFile` – Gzip File Extractor
+### 🗜️ `rdfcp:GunzipFile` – Gzip File Extractor
 
 Gunzip a compressed file stream and stream out its content. This processor operates only in streaming mode.
 
 **Parameters:**
 
-- `rdfc:input` (`rdfc:Reader`, required): Input channel (gzip file).
-- `rdfc:output` (`rdfc:Writer`, required): Output channel (extracted contents).
+- `rdfcp:input` (`rdfc:Reader`, required): Input channel (gzip file).
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel (extracted contents).
 
 ---
 
-### 📝 `rdfc:FileWriter` – JavaScript File Writer
+### 📝 `rdfcp:FileWriter` – JavaScript File Writer
 
 Writes incoming data to a file. Supports writing buffered strings, binary buffers, or streaming input.
 
 **Parameters:**
 
-- `rdfc:input` (`rdfc:Reader`, required): Input channel providing data to write. Can be strings, buffers, or streams depending on configuration.
-- `rdfc:filePath` (`string` or IRI, required): Destination file path where data will be written.
-- `rdfc:readAsStream` (`boolean`, optional, default `false`): If true, consume the inputs as streams and pipe them to the destination file. Use this for large files or streaming data.
-- `rdfc:binary` (`boolean`, optional, default `false`): If true, treat incoming messages as binary buffers and write them as binary data. When false or omitted, input strings will be written as UTF-8 text.
+- `rdfcp:input` (`rdfc:Reader`, required): Input channel providing data to write. Can be strings, buffers, or streams depending on configuration.
+- `rdfcp:filePath` (`string` or IRI, required): Destination file path where data will be written.
+- `rdfcp:readAsStream` (`boolean`, optional, default `false`): If true, consume the inputs as streams and pipe them to the destination file. Use this for large files or streaming data.
+- `rdfcp:binary` (`boolean`, optional, default `false`): If true, treat incoming messages as binary buffers and write them as binary data. When false or omitted, input strings will be written as UTF-8 text.
 
 Notes:
 
@@ -157,20 +158,20 @@ Notes:
 Example (streaming mode):
 
 ```turtle
-<writer> a rdfc:FileWriter;
-    rdfc:input <in>;
-    rdfc:filePath "./out/output.txt";
-    rdfc:readAsStream true.
+<writer> a rdfcp:FileWriter;
+    rdfcp:input <in>;
+    rdfcp:filePath "./out/output.txt";
+    rdfcp:readAsStream true.
 ```
 
 Example (buffered text mode):
 
 ```turtle
-<writer> a rdfc:FileWriter;
-    rdfc:input <in>;
-    rdfc:filePath "./out/output.txt";
-    rdfc:readAsStream false;
-    rdfc:binary false.
+<writer> a rdfcp:FileWriter;
+    rdfcp:input <in>;
+    rdfcp:filePath "./out/output.txt";
+    rdfcp:readAsStream false;
+    rdfcp:binary false.
 ```
 
 ## Example Pipelines
@@ -178,31 +179,31 @@ Example (buffered text mode):
 ### Example 1: Reading all `.txt` files in a folder and logging them
 
 ```turtle
-<reader> a rdfc:GlobRead;
-rdfc:glob "./data/*.txt";
-rdfc:output <out>.
+<reader> a rdfcp:GlobRead;
+rdfcp:glob "./data/*.txt";
+rdfcp:output <out>.
 
-<logger> a rdfc:LogProcessorJs;
-    rdfc:reader <out>;
-    rdfc:level "info";
-    rdfc:label "glob-reader".
+<logger> a rdfcp:LogProcessorJs;
+    rdfcp:input <out>;
+    rdfcp:level "info";
+    rdfcp:label "glob-reader".
 ```
 
 ### Example 2: Substituting strings in a stream
 
 ```turtle
-<substitute> a rdfc:Substitute;
-rdfc:reader <in>;
-rdfc:writer <out>;
-rdfc:source "World";
-rdfc:replace "RDF-Connect";
-rdfc:regexp false.
+<substitute> a rdfcp:Substitute;
+rdfcp:input <in>;
+rdfcp:output <out>;
+rdfcp:source "World";
+rdfcp:replace "RDF-Connect";
+rdfcp:regexp false.
 ```
 
 ### Example 3: Reading and unzipping a file
 
 ```turtle
-<unzipper> a rdfc:UnzipFile;
-rdfc:reader <in>;
-rdfc:writer <out>.
+<unzipper> a rdfcp:UnzipFile;
+rdfcp:input <in>;
+rdfcp:output <out>.
 ```
