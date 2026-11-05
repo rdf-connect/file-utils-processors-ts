@@ -69,7 +69,7 @@ rdfcp:FolderRead a owl:Class, rdfs:Class;
 [ ] a sh:NodeShape;
   sh:targetClass rdfcp:FolderRead;
   sh:property [
-    sh:path rdfcp:folder_location;
+    sh:path rdfcp:folderPath;
     sh:codeIdentifier "folder";
     sh:name "Folder";
     sh:description "Path to the folder whose files, including those in subfolders, are read.";
@@ -86,7 +86,7 @@ rdfcp:FolderRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfcp:max_memory;
+    sh:path rdfcp:maxMemory;
     sh:codeIdentifier "maxMemory";
     sh:name "Maximum memory";
     sh:description "Heap usage in GB above which the processor pauses before reading the next file; default is 3.";

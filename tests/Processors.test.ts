@@ -61,9 +61,9 @@ describe("File Utils tests", async () => {
     test("rdfcp:FolderRead is properly defined", async () => {
         const proc = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfcp:FolderRead; 
-                rdfcp:folder_location "./src"; 
+                rdfcp:folderPath "./src"; 
                 rdfcp:output <jw>;
-                rdfcp:max_memory 3.5;
+                rdfcp:maxMemory 3.5;
                 rdfcp:pause 3000.`,
             "FolderRead",
         );
@@ -174,7 +174,7 @@ describe("File Utils tests", async () => {
     test("rdfcp:FolderRead falls back to its default values", async () => {
         const proc = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfcp:FolderRead;
-                rdfcp:folder_location "./src";
+                rdfcp:folderPath "./src";
                 rdfcp:output <jw>.`,
             "FolderRead",
         );
@@ -220,7 +220,7 @@ describe("File Utils tests", async () => {
 
         const folder = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfcp:FolderRead;
-                rdfcp:folder_location <./tests/data>;
+                rdfcp:folderPath <./tests/data>;
                 rdfcp:output <jw>.`,
             "FolderRead",
         );
