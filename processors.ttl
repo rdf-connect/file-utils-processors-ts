@@ -1,10 +1,11 @@
 @prefix rdfc: <https://w3id.org/rdf-connect#>.
+@prefix rdfcp: <https://w3id.org/rdf-connect/processors#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix sh: <http://www.w3.org/ns/shacl#>.
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 
-rdfc:GlobRead a owl:Class, rdfs:Class;
+rdfcp:GlobRead a owl:Class, rdfs:Class;
   rdfs:label "Glob Read";
   rdfs:comment "Reads all files according to the Glob pattern";
   rdfc:jsImplementationOf rdfc:Processor;
@@ -13,9 +14,9 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:GlobRead;
+  sh:targetClass rdfcp:GlobRead;
   sh:property [
-    sh:path rdfc:glob;
+    sh:path rdfcp:glob;
     sh:codeIdentifier "globPattern";
     sh:name "Glob pattern";
     sh:description "Glob pattern that selects the files to read.";
@@ -24,7 +25,7 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:output;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the content of every matched file is written.";
@@ -32,7 +33,7 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:wait;
+    sh:path rdfcp:wait;
     sh:codeIdentifier "wait";
     sh:name "Wait time";
     sh:description "Time in milliseconds to wait after sending each file; default is 0.";
@@ -40,7 +41,7 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
     sh:defaultValue 0;
     sh:maxCount 1;
   ], [
-    sh:path rdfc:closeOnEnd;
+    sh:path rdfcp:closeOnEnd;
     sh:codeIdentifier "closeOnEnd";
     sh:name "Close on end";
     sh:description "Close the output channel after all files are sent; default is true.";
@@ -48,7 +49,7 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
     sh:defaultValue true;
     sh:maxCount 1;
   ], [
-    sh:path rdfc:binary;
+    sh:path rdfcp:binary;
     sh:codeIdentifier "binary";
     sh:name "Binary";
     sh:description "Currently unused: files are always sent as bytes; default is false.";
@@ -57,7 +58,7 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
   ].
 
-rdfc:FolderRead a owl:Class, rdfs:Class;
+rdfcp:FolderRead a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "Folder Read";
   rdfs:comment "Reads all files inside the folder";
@@ -66,9 +67,9 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:FolderRead;
+  sh:targetClass rdfcp:FolderRead;
   sh:property [
-    sh:path rdfc:folder_location;
+    sh:path rdfcp:folder_location;
     sh:codeIdentifier "folder";
     sh:name "Folder";
     sh:description "Path to the folder whose files, including those in subfolders, are read.";
@@ -77,7 +78,7 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:file_stream;
+    sh:path rdfcp:file_stream;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the content of every file is written.";
@@ -85,7 +86,7 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:max_memory;
+    sh:path rdfcp:max_memory;
     sh:codeIdentifier "maxMemory";
     sh:name "Maximum memory";
     sh:description "Heap usage in GB above which the processor pauses before reading the next file; default is 3.";
@@ -93,7 +94,7 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
     sh:defaultValue 3.0;
     sh:maxCount 1;
   ], [
-    sh:path rdfc:pause;
+    sh:path rdfcp:pause;
     sh:codeIdentifier "pause";
     sh:name "Pause";
     sh:description "Time in milliseconds to pause when the memory limit is exceeded; default is 5000.";
@@ -102,7 +103,7 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
   ].
 
-rdfc:Substitute a owl:Class, rdfs:Class;
+rdfcp:Substitute a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "String substitute processor";
   rdfs:comment "Simple string manipulation processor. Transform a stream by applying the string substitution on the messages. The matching string can be a regex.";
@@ -111,9 +112,9 @@ rdfc:Substitute a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:Substitute;
+  sh:targetClass rdfcp:Substitute;
   sh:property [
-    sh:path rdfc:input;
+    sh:path rdfcp:input;
     sh:codeIdentifier "reader";
     sh:name "Input channel";
     sh:description "Input channel with the text messages to transform.";
@@ -121,7 +122,7 @@ rdfc:Substitute a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:output;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the transformed messages are written.";
@@ -129,7 +130,7 @@ rdfc:Substitute a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:source;
+    sh:path rdfcp:source;
     sh:codeIdentifier "source";
     sh:name "Search string";
     sh:description "String, or regular expression if regexp is true, to search for in every message.";
@@ -137,7 +138,7 @@ rdfc:Substitute a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:replace;
+    sh:path rdfcp:replace;
     sh:codeIdentifier "replace";
     sh:name "Replacement";
     sh:description "String that replaces every match.";
@@ -145,7 +146,7 @@ rdfc:Substitute a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:regexp;
+    sh:path rdfcp:regexp;
     sh:codeIdentifier "regexp";
     sh:name "Regular expression";
     sh:description "Interpret the search string as a regular expression; default is false.";
@@ -154,7 +155,7 @@ rdfc:Substitute a owl:Class, rdfs:Class;
     sh:maxCount 1;
   ].
 
-rdfc:Envsub a owl:Class, rdfs:Class;
+rdfcp:Envsub a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "Environment substitute processor";
   rdfs:comment "Substitutes all declared environment variables to their respective values.";
@@ -163,9 +164,9 @@ rdfc:Envsub a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:Envsub;
+  sh:targetClass rdfcp:Envsub;
   sh:property [
-    sh:path rdfc:input;
+    sh:path rdfcp:input;
     sh:codeIdentifier "reader";
     sh:name "Input channel";
     sh:description "Input channel with the text messages in which to substitute environment variables.";
@@ -173,7 +174,7 @@ rdfc:Envsub a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:output;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the messages are written, with every ${NAME} replaced by the value of the environment variable NAME.";
@@ -182,7 +183,7 @@ rdfc:Envsub a owl:Class, rdfs:Class;
     sh:minCount 1;
   ].
 
-rdfc:ReadFile a owl:Class, rdfs:Class;
+rdfcp:ReadFile a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "On demand file reader processor";
   rdfs:comment "Reads a requested file on demand.";
@@ -191,9 +192,9 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:ReadFile;
+  sh:targetClass rdfcp:ReadFile;
   sh:property [
-    sh:path rdfc:input;
+    sh:path rdfcp:input;
     sh:codeIdentifier "reader";
     sh:name "Input channel";
     sh:description "Input channel with the names of the files to read, relative to the folder path.";
@@ -201,7 +202,7 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:folderPath;
+    sh:path rdfcp:folderPath;
     sh:codeIdentifier "folderPath";
     sh:name "Folder path";
     sh:description "Path to the folder that contains the files to read.";
@@ -210,7 +211,7 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:output;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the content of every requested file is written.";
@@ -219,7 +220,7 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
     sh:minCount 1;
   ].
 
-rdfc:UnzipFile a owl:Class, rdfs:Class;
+rdfcp:UnzipFile a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "Unzip processor";
   rdfs:comment "Processor to unzip a compressed file and stream out its content.";
@@ -228,9 +229,9 @@ rdfc:UnzipFile a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:UnzipFile;
+  sh:targetClass rdfcp:UnzipFile;
   sh:property [
-    sh:path rdfc:input;
+    sh:path rdfcp:input;
     sh:codeIdentifier "reader";
     sh:name "Input channel";
     sh:description "Input channel with the ZIP archives to extract.";
@@ -238,7 +239,7 @@ rdfc:UnzipFile a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:output;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the content of every file in the archives is written.";
@@ -247,7 +248,7 @@ rdfc:UnzipFile a owl:Class, rdfs:Class;
     sh:minCount 1;
   ].
 
-rdfc:GunzipFile a owl:Class, rdfs:Class;
+rdfcp:GunzipFile a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "Gunzip processor";
   rdfs:comment "Processor to gunzip a compressed file and stream out its content.";
@@ -256,9 +257,9 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:GunzipFile;
+  sh:targetClass rdfcp:GunzipFile;
   sh:property [
-    sh:path rdfc:input;
+    sh:path rdfcp:input;
     sh:codeIdentifier "reader";
     sh:name "Input channel";
     sh:description "Input channel with the gzip-compressed data to decompress.";
@@ -266,7 +267,7 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:output;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the decompressed data is written.";
@@ -275,7 +276,7 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
     sh:minCount 1;
   ].
 
-rdfc:FileWriter a owl:Class, rdfs:Class;
+rdfcp:FileWriter a owl:Class, rdfs:Class;
   rdfc:jsImplementationOf rdfc:Processor;
   rdfs:label "JavaScript file writer processor";
   rdfs:comment "Writes incoming data to a file.";
@@ -284,9 +285,9 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
   rdfc:entrypoint <./>.
 
 [ ] a sh:NodeShape;
-  sh:targetClass rdfc:FileWriter;
+  sh:targetClass rdfcp:FileWriter;
   sh:property [
-    sh:path rdfc:filePath;
+    sh:path rdfcp:filePath;
     sh:codeIdentifier "filePath";
     sh:name "File path";
     sh:description "Path to the file to write the incoming data to.";
@@ -295,7 +296,7 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:input;
+    sh:path rdfcp:input;
     sh:codeIdentifier "input";
     sh:name "Input channel";
     sh:description "Input channel with the data to write to the file.";
@@ -303,7 +304,7 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfc:readAsStream;
+    sh:path rdfcp:readAsStream;
     sh:codeIdentifier "readAsStream";
     sh:name "Read as stream";
     sh:description "Read the incoming data as streams instead of whole messages; default is false.";
@@ -311,7 +312,7 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
     sh:defaultValue false;
     sh:maxCount 1;
   ], [
-    sh:path rdfc:binary;
+    sh:path rdfcp:binary;
     sh:codeIdentifier "binary";
     sh:name "Binary";
     sh:description "Write the incoming messages as bytes instead of text; ignored when reading as stream; default is false.";
