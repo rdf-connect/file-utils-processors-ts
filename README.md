@@ -46,7 +46,7 @@ Next, you can add the processors to your pipeline configuration as follows:
 ### Define and configure the processors
 <folderReader> a rdfcp:FolderRead;
     rdfcp:folder_location "./data";
-    rdfcp:file_stream <out>.
+    rdfcp:output <out>.
 ```
 
 ---
@@ -74,7 +74,7 @@ Reads all files inside a folder.
 **Parameters:**
 
 - `rdfcp:folder_location` (`string` or IRI, required): Path to the folder.
-- `rdfcp:file_stream` (`rdfc:Writer`, required): Output channel to stream file contents.
+- `rdfcp:output` (`rdfc:Writer`, required): Output channel to stream file contents.
 - `rdfcp:max_memory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
 - `rdfcp:pause` (`integer`, optional, default `5000`): Pause duration (ms) between file reads.
 
@@ -184,7 +184,7 @@ rdfcp:glob "./data/*.txt";
 rdfcp:output <out>.
 
 <logger> a rdfcp:LogProcessorJs;
-    rdfcp:reader <out>;
+    rdfcp:input <out>;
     rdfcp:level "info";
     rdfcp:label "glob-reader".
 ```
@@ -193,8 +193,8 @@ rdfcp:output <out>.
 
 ```turtle
 <substitute> a rdfcp:Substitute;
-rdfcp:reader <in>;
-rdfcp:writer <out>;
+rdfcp:input <in>;
+rdfcp:output <out>;
 rdfcp:source "World";
 rdfcp:replace "RDF-Connect";
 rdfcp:regexp false.
@@ -204,6 +204,6 @@ rdfcp:regexp false.
 
 ```turtle
 <unzipper> a rdfcp:UnzipFile;
-rdfcp:reader <in>;
-rdfcp:writer <out>.
+rdfcp:input <in>;
+rdfcp:output <out>.
 ```

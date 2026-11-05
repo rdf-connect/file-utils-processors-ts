@@ -62,7 +62,7 @@ describe("File Utils tests", async () => {
         const proc = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfcp:FolderRead; 
                 rdfcp:folder_location "./src"; 
-                rdfcp:file_stream <jw>;
+                rdfcp:output <jw>;
                 rdfcp:max_memory 3.5;
                 rdfcp:pause 3000.`,
             "FolderRead",
@@ -175,7 +175,7 @@ describe("File Utils tests", async () => {
         const proc = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfcp:FolderRead;
                 rdfcp:folder_location "./src";
-                rdfcp:file_stream <jw>.`,
+                rdfcp:output <jw>.`,
             "FolderRead",
         );
 
@@ -221,7 +221,7 @@ describe("File Utils tests", async () => {
         const folder = await getProc<ReadFolder>(
             `<http://example.com/ns#processor> a rdfcp:FolderRead;
                 rdfcp:folder_location <./tests/data>;
-                rdfcp:file_stream <jw>.`,
+                rdfcp:output <jw>.`,
             "FolderRead",
         );
         await folder.init();
