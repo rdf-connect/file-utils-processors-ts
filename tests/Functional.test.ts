@@ -43,7 +43,6 @@ describe("Functional tests for the globRead RDF-Connect function", () => {
         const proc = new GlobRead(
             {
                 writer: writeStream,
-                binary: false,
                 closeOnEnd: true,
                 wait: 0,
                 globPattern: "./tests/*.ts",

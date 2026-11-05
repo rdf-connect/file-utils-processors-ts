@@ -48,14 +48,6 @@ rdfcp:GlobRead a owl:Class, rdfs:Class;
     sh:datatype xsd:boolean;
     sh:defaultValue true;
     sh:maxCount 1;
-  ], [
-    sh:path rdfcp:binary;
-    sh:codeIdentifier "binary";
-    sh:name "Binary";
-    sh:description "Currently unused: files are always sent as bytes; default is false.";
-    sh:datatype xsd:boolean;
-    sh:defaultValue false;
-    sh:maxCount 1;
   ].
 
 rdfcp:FolderRead a owl:Class, rdfs:Class;
