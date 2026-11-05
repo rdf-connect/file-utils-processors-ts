@@ -45,7 +45,7 @@ Next, you can add the processors to your pipeline configuration as follows:
 
 ### Define and configure the processors
 <folderReader> a rdfcp:FolderRead;
-    rdfcp:folder_location "./data";
+    rdfcp:folderPath "./data";
     rdfcp:output <out>.
 ```
 
@@ -73,9 +73,9 @@ Reads all files inside a folder.
 
 **Parameters:**
 
-- `rdfcp:folder_location` (`string` or IRI, required): Path to the folder.
+- `rdfcp:folderPath` (`string` or IRI, required): Path to the folder.
 - `rdfcp:output` (`rdfc:Writer`, required): Output channel to stream file contents.
-- `rdfcp:max_memory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
+- `rdfcp:maxMemory` (`double`, optional, default `3`): Max heap memory usage allowed (in GB) before pausing.
 - `rdfcp:pause` (`integer`, optional, default `5000`): Pause duration (ms) between file reads.
 
 ---
