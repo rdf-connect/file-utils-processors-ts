@@ -44,8 +44,7 @@ describe("File Utils tests", async () => {
                 rdfcp:glob "./*.json"; 
                 rdfcp:output <jw>;
                 rdfcp:wait 0;
-                rdfcp:closeOnEnd true;
-                rdfcp:binary true.`,
+                rdfcp:closeOnEnd true.`,
             "GlobRead",
         );
 
@@ -55,7 +54,6 @@ describe("File Utils tests", async () => {
         expect(proc.wait).toBe(0);
         expect(proc.writer.constructor.name).toBe("WriterInstance");
         expect(proc.closeOnEnd).toBe(true);
-        expect(proc.binary).toBe(true);
     });
 
     test("rdfcp:FolderRead is properly defined", async () => {
@@ -168,7 +166,6 @@ describe("File Utils tests", async () => {
 
         expect(proc.wait).toBe(0);
         expect(proc.closeOnEnd).toBe(true);
-        expect(proc.binary).toBe(false);
     });
 
     test("rdfcp:FolderRead falls back to its default values", async () => {

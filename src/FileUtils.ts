@@ -14,7 +14,6 @@ type GlobReadInp = {
     writer: Writer;
     wait: number;
     closeOnEnd: boolean;
-    binary: boolean;
 };
 export class GlobRead extends Processor<GlobReadInp> {
     files: string[] = [];
