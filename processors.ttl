@@ -78,7 +78,7 @@ rdfcp:FolderRead a owl:Class, rdfs:Class;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
-    sh:path rdfcp:file_stream;
+    sh:path rdfcp:output;
     sh:codeIdentifier "writer";
     sh:name "Output channel";
     sh:description "Output channel to which the content of every file is written.";
