@@ -17,32 +17,37 @@ rdfc:GlobRead a owl:Class, rdfs:Class;
   sh:targetClass rdfc:GlobRead;
   sh:property [
     sh:path rdfc:glob;
-    sh:name "globPattern";
+    sh:codeIdentifier "globPattern";
+    sh:name "Glob pattern";
     sh:nodeKind sh:IRIOrLiteral;
     sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:output;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:wait;
-    sh:name "wait";
+    sh:codeIdentifier "wait";
+    sh:name "Wait time";
     sh:datatype xsd:integer;
     sh:defaultValue 0;
     sh:maxCount 1;
   ], [
     sh:path rdfc:closeOnEnd;
-    sh:name "closeOnEnd";
+    sh:codeIdentifier "closeOnEnd";
+    sh:name "Close on end";
     sh:datatype xsd:boolean;
     sh:defaultValue true;
     sh:maxCount 1;
   ], [
     sh:path rdfc:binary;
-    sh:name "binary";
+    sh:codeIdentifier "binary";
+    sh:name "Binary";
     sh:datatype xsd:boolean;
     sh:defaultValue false;
     sh:maxCount 1;
@@ -60,26 +65,30 @@ rdfc:FolderRead a owl:Class, rdfs:Class;
   sh:targetClass rdfc:FolderRead;
   sh:property [
     sh:path rdfc:folder_location;
-    sh:name "folder";
+    sh:codeIdentifier "folder";
+    sh:name "Folder";
     sh:nodeKind sh:IRIOrLiteral;
     sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:file_stream;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:max_memory;
-    sh:name "maxMemory";
+    sh:codeIdentifier "maxMemory";
+    sh:name "Maximum memory";
     sh:datatype xsd:double;
     sh:defaultValue 3.0;
     sh:maxCount 1;
   ], [
     sh:path rdfc:pause;
-    sh:name "pause";
+    sh:codeIdentifier "pause";
+    sh:name "Pause";
     sh:datatype xsd:integer;
     sh:defaultValue 5000;
     sh:maxCount 1;
@@ -97,31 +106,36 @@ rdfc:Substitute a owl:Class, rdfs:Class;
   sh:targetClass rdfc:Substitute;
   sh:property [
     sh:path rdfc:input;
-    sh:name "reader";
+    sh:codeIdentifier "reader";
+    sh:name "Input channel";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:output;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:source;
-    sh:name "source";
+    sh:codeIdentifier "source";
+    sh:name "Search string";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:replace;
-    sh:name "replace";
+    sh:codeIdentifier "replace";
+    sh:name "Replacement";
     sh:datatype xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:regexp;
-    sh:name "regexp";
+    sh:codeIdentifier "regexp";
+    sh:name "Regular expression";
     sh:datatype xsd:boolean;
     sh:defaultValue false;
     sh:maxCount 1;
@@ -139,13 +153,15 @@ rdfc:Envsub a owl:Class, rdfs:Class;
   sh:targetClass rdfc:Envsub;
   sh:property [
     sh:path rdfc:input;
-    sh:name "reader";
+    sh:codeIdentifier "reader";
+    sh:name "Input channel";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:output;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
@@ -163,20 +179,23 @@ rdfc:ReadFile a owl:Class, rdfs:Class;
   sh:targetClass rdfc:ReadFile;
   sh:property [
     sh:path rdfc:input;
-    sh:name "reader";
+    sh:codeIdentifier "reader";
+    sh:name "Input channel";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:folderPath;
-    sh:name "folderPath";
+    sh:codeIdentifier "folderPath";
+    sh:name "Folder path";
     sh:nodeKind sh:IRIOrLiteral;
     sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:output;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
@@ -194,13 +213,15 @@ rdfc:UnzipFile a owl:Class, rdfs:Class;
   sh:targetClass rdfc:UnzipFile;
   sh:property [
     sh:path rdfc:input;
-    sh:name "reader";
+    sh:codeIdentifier "reader";
+    sh:name "Input channel";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:output;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
@@ -218,13 +239,15 @@ rdfc:GunzipFile a owl:Class, rdfs:Class;
   sh:targetClass rdfc:GunzipFile;
   sh:property [
     sh:path rdfc:input;
-    sh:name "reader";
+    sh:codeIdentifier "reader";
+    sh:name "Input channel";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:output;
-    sh:name "writer";
+    sh:codeIdentifier "writer";
+    sh:name "Output channel";
     sh:class rdfc:Writer;
     sh:maxCount 1;
     sh:minCount 1;
@@ -242,26 +265,30 @@ rdfc:FileWriter a owl:Class, rdfs:Class;
   sh:targetClass rdfc:FileWriter;
   sh:property [
     sh:path rdfc:filePath;
-    sh:name "filePath";
+    sh:codeIdentifier "filePath";
+    sh:name "File path";
     sh:nodeKind sh:IRIOrLiteral;
     sh:codeType xsd:string;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:input;
-    sh:name "input";
+    sh:codeIdentifier "input";
+    sh:name "Input channel";
     sh:class rdfc:Reader;
     sh:maxCount 1;
     sh:minCount 1;
   ], [
     sh:path rdfc:readAsStream;
-    sh:name "readAsStream";
+    sh:codeIdentifier "readAsStream";
+    sh:name "Read as stream";
     sh:datatype xsd:boolean;
     sh:defaultValue false;
     sh:maxCount 1;
   ], [
     sh:path rdfc:binary;
-    sh:name "binary";
+    sh:codeIdentifier "binary";
+    sh:name "Binary";
     sh:datatype xsd:boolean;
     sh:defaultValue false;
     sh:maxCount 1;
